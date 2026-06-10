@@ -1,0 +1,12 @@
+{
+  "name": "Festival de Misiones 2026",
+  "short_name": "Misiones 2026",
+  "description": "Programa, seminarios y versículos del Festival de Misiones 2026 · Servicio Voluntario Adventista",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080e22",
+  "theme_color": "#080e22",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
