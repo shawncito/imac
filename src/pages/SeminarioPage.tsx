@@ -1,80 +1,162 @@
-import { MapPin, User } from 'lucide-react'
-import { SVALogoFull } from '../components/SVALogo'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { MapPin, Mic } from 'lucide-react'
+import { useConfig } from '../lib/config'
+import { SEMINARIOS_KEY, defaultSeminarios, SEMINAR_ICONS, type Seminar } from '../lib/appData'
 
-const seminars = [
-  {
-    title: 'El poder del servicio',
-    location: 'Salón multimedia',
-    speaker: '',
-    emoji: '🎬',
-  },
-  {
-    title: 'Misión transcultural',
-    location: 'Aula 1 AAA',
-    speaker: '',
-    emoji: '🌍',
-  },
-  {
-    title: 'Living the mission',
-    location: 'Salón de actos',
-    speaker: '',
-    emoji: '✝️',
-  },
-  {
-    title: 'Misión Urbana',
-    location: 'Salón Israel Leito',
-    speaker: '',
-    emoji: '🏙️',
-  },
-]
+const ACCENT = '#FF5A1F'
 
-export default function SeminarioPage() {
+export default function SeminarioPage({
+  initialOpen = null,
+  onOpened,
+}: {
+  initialOpen?: number | null
+  onOpened?: () => void
+}) {
+  const seminars = useConfig<Seminar[]>(SEMINARIOS_KEY, defaultSeminarios)
+  const [open, setOpen] = useState<number | null>(initialOpen ?? null)
+
+  useEffect(() => {
+    if (initialOpen !== null && initialOpen !== undefined) {
+      setOpen(initialOpen)
+      onOpened?.()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialOpen])
+
   return (
-    <div className="flex flex-col bg-[oklch(96%_0.006_250)] min-h-[calc(100dvh-72px)]">
+    <div className="tab-scroll">
+      <header className="page-head">
+        <div className="page-kicker" style={{ color: ACCENT }}>Sábado 27 · 2:00–4:00 pm</div>
+        <h1 className="page-title">Seminarios</h1>
+        <p className="page-sub">Tres seminarios simultáneos. Elige uno y vive la misión.</p>
+      </header>
 
-      {/* Header */}
-      <div className="bg-[oklch(11%_0.01_250)] px-5 pt-12 pb-10 rounded-b-[14px]">
-        <SVALogoFull className="mb-5" />
-        <h1 className="text-white font-bold text-[22px] leading-tight">Seminarios</h1>
-        <p className="text-white/40 text-[13px] mt-1">Sábado 27 de junio · 2:00 – 4:00 pm</p>
-      </div>
+      {seminars.length === 0 && (
+        <p className="page-sub" style={{ textAlign: 'center', padding: '40px 0' }}>No hay seminarios disponibles.</p>
+      )}
 
-      {/* Cards */}
-      <div className="px-4 pt-5 pb-6 flex flex-col gap-3">
-        {seminars.map((s, i) => (
-          <article
-            key={i}
-            className="bg-white rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-black/[0.06] px-5 py-4 flex flex-col gap-3"
-          >
-            <div className="flex items-start gap-3">
-              <span className="text-[32px] leading-none mt-0.5">{s.emoji}</span>
-              <div className="flex-1">
-                <p className="text-[oklch(55%_0.14_82)] text-[10px] font-bold tracking-[0.18em] uppercase mb-1">
-                  Seminario {i + 1}
-                </p>
-                <h2 className="text-[oklch(12%_0.01_250)] font-bold text-[17px] leading-snug">
-                  {s.title}
-                </h2>
-              </div>
-            </div>
+      <div className="sem-list">
+        {seminars.map((s, i) => {
+          const Icon = SEMINAR_ICONS[s.icon] ?? Mic
+          const isOpen = open === i
+          const tbc = (s.speaker || '').toLowerCase().includes('confirmar') || !s.speaker
 
-            <div className="flex flex-col gap-2 pl-[44px]">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[oklch(55%_0.14_82)] flex-shrink-0" />
-                <span className="text-[13px] text-black/60 font-medium">{s.location}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <User className="w-3.5 h-3.5 text-black/25 flex-shrink-0" />
-                {s.speaker ? (
-                  <span className="text-[13px] text-black/70 font-medium">{s.speaker}</span>
-                ) : (
-                  <span className="text-[13px] text-black/25 italic">Ponente por confirmar</span>
+          return (
+            <motion.div
+              key={i}
+              className="sem-card"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.28, delay: i * 0.05, ease: 'easeOut' }}
+            >
+              {/* ── Collapsed header ── */}
+              <button
+                className="sem-head"
+                onClick={() => setOpen(isOpen ? null : i)}
+                aria-expanded={isOpen}
+              >
+                {/* Photo: visible in header only when CLOSED */}
+                {s.speakerPhoto && !isOpen && (
+                  <motion.img
+                    layoutId={`speaker-photo-${i}`}
+                    src={s.speakerPhoto}
+                    alt={s.speaker}
+                    className="sem-head-photo"
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    transition={{ type: 'spring', stiffness: 340, damping: 32 }}
+                  />
                 )}
-              </div>
-            </div>
-          </article>
-        ))}
+                {/* Fallback number badge when no photo */}
+                {!s.speakerPhoto && (
+                  <div className="sem-index" style={{ color: ACCENT, borderColor: ACCENT }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </div>
+                )}
+
+                <div className="sem-body">
+                  <h3 className="sem-title">{s.title}</h3>
+                  <div className="sem-speaker-row">
+                    {!tbc && <span className="sem-speaker-name">{s.speaker}</span>}
+                    {s.room && (
+                      <>
+                        <span className="sem-room-sep">·</span>
+                        <span className="sem-room"><MapPin size={11} />{s.room}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="sem-glyph" style={{ color: ACCENT, opacity: isOpen ? 0.3 : 0.85 }}>
+                  <Icon size={24} strokeWidth={1.6} />
+                </div>
+
+                <motion.div
+                  animate={{ rotate: isOpen ? 180 : 0 }}
+                  transition={{ duration: 0.25 }}
+                  style={{ color: 'rgba(255,255,255,0.35)', flexShrink: 0, display: 'flex' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </motion.div>
+              </button>
+
+              {/* ── Expanded detail ── */}
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    className="sem-detail"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: [0.22, 0.61, 0.36, 1] }}
+                  >
+                    <div className="sem-detail-inner">
+
+                      {/* Speaker block — photo slides in from header position */}
+                      {s.speakerPhoto && (
+                        <div className="sem-detail-speaker">
+                          <motion.img
+                            layoutId={`speaker-photo-${i}`}
+                            src={s.speakerPhoto}
+                            alt={s.speaker}
+                            className="sem-detail-photo"
+                            onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                            transition={{ type: 'spring', stiffness: 340, damping: 32 }}
+                          />
+                          <div>
+                            <div className="sem-detail-name">{s.speaker}</div>
+                            <div className="sem-detail-role">Expositor</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {s.description
+                        ? <p className="sem-desc">{s.description}</p>
+                        : <p className="sem-desc" style={{ color: 'var(--faint)' }}>Descripción próximamente.</p>}
+
+                      {s.room && (
+                        <div className="sem-field">
+                          <MapPin size={14} />
+                          <span className="lbl">Ubicación:</span>
+                          <span className="val">{s.room}</span>
+                        </div>
+                      )}
+
+                      {s.mapUrl
+                        ? <div className="sem-map"><img src={s.mapUrl} alt={`Mapa: ${s.room}`} loading="lazy" /></div>
+                        : <div className="sem-map-empty">🗺️ Mapa del campus próximamente</div>}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )
+        })}
       </div>
+
+      <p className="swipe-hint">Desliza para cambiar de sección</p>
     </div>
   )
 }

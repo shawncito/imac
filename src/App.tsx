@@ -1,52 +1,128 @@
-import { useState } from 'react'
-import { BookOpen, Users, CalendarDays } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import type { PanInfo } from 'motion/react'
+import { CalendarDays, Users, BookOpen, Mic, Globe } from 'lucide-react'
 import ActivityPage from './pages/ActivityPage'
 import SeminarioPage from './pages/SeminarioPage'
 import ProgramaPage from './pages/ProgramaPage'
+import MisionesPage from './pages/MisionesPage'
+import AdminPage from './pages/AdminPage'
+import WorldBackdrop from './components/WorldBackdrop'
+import logoIM from './assets/logo.webp'
 
-type Tab = 'actividad' | 'seminario' | 'programa'
+type Tab = 'misiones' | 'programa' | 'seminario' | 'actividad'
 
+const tabOrder: Tab[] = ['misiones', 'programa', 'seminario', 'actividad']
 const tabs = [
-  { id: 'actividad' as Tab, label: 'Actividad',  Icon: BookOpen },
-  { id: 'seminario' as Tab, label: 'Seminario',  Icon: Users },
-  { id: 'programa'  as Tab, label: 'Programa',   Icon: CalendarDays },
+  { id: 'misiones'  as Tab, label: 'Misiones',  Icon: Globe },
+  { id: 'programa'  as Tab, label: 'Programa',  Icon: CalendarDays },
+  { id: 'seminario' as Tab, label: 'Seminario', Icon: Users },
+  { id: 'actividad' as Tab, label: 'Actividad', Icon: BookOpen },
 ]
 
+function WaveBars() {
+  return (
+    <div className="flex items-center gap-[3px] h-[13px]">
+      {[0, 1, 2, 3].map(i => (
+        <div key={i} className="wave-bar h-full" style={{ animationDelay: `${i * 0.15}s` }} />
+      ))}
+    </div>
+  )
+}
+
 export default function App() {
-  const [tab, setTab] = useState<Tab>('actividad')
+  const [tab, setTab]           = useState<Tab>('misiones')
+  const [prev, setPrev]         = useState<Tab>('misiones')
+  const [isAdmin, setIsAdmin]   = useState(window.location.hash === '#admin')
+  const [playSignal, setPlaySignal] = useState(0)
+  const [voicePlaying, setVoicePlaying] = useState(false)
+  const [openSeminar, setOpenSeminar] = useState<number | null>(null)
+
+  useEffect(() => {
+    const handler = () => setIsAdmin(window.location.hash === '#admin')
+    window.addEventListener('hashchange', handler)
+    return () => window.removeEventListener('hashchange', handler)
+  }, [])
+
+  function go(id: Tab) {
+    if (id === tab) return
+    setPrev(tab)
+    setTab(id)
+  }
+
+  function handleVoz() {
+    go('actividad')
+    setPlaySignal(s => s + 1)
+  }
+
+  function handleSwipe(_: unknown, info: PanInfo) {
+    const { offset, velocity } = info
+    if (Math.abs(offset.x) < Math.abs(offset.y) * 1.2) return
+    const cur = tabOrder.indexOf(tab)
+    if ((offset.x < -45 || velocity.x < -350) && cur < tabOrder.length - 1) go(tabOrder[cur + 1])
+    else if ((offset.x > 45 || velocity.x > 350) && cur > 0) go(tabOrder[cur - 1])
+  }
+
+  const direction = tabOrder.indexOf(tab) > tabOrder.indexOf(prev) ? 1 : -1
+
+  if (isAdmin) return <AdminPage />
 
   return (
-    <div className="min-h-dvh flex flex-col bg-[oklch(96%_0.006_250)]">
+    <div className="screen bg-misionero">
+      <WorldBackdrop showPlane={tab === 'misiones'} />
 
-      {/* Page content */}
-      <div className="flex-1 overflow-y-auto pb-[72px]">
-        {tab === 'actividad' && <ActivityPage />}
-        {tab === 'seminario' && <SeminarioPage />}
-        {tab === 'programa'  && <ProgramaPage />}
-      </div>
+      <header className="appbar">
+        <img src={logoIM} alt="Instituto Misionero" className="brand-logo im" />
+        <button className="voz" onClick={handleVoz} aria-label="Escuchar versículo" style={{ marginLeft: 'auto' }}>
+          {voicePlaying ? <WaveBars /> : <Mic size={18} />}
+          <span className="vlabel">VOZ</span>
+        </button>
+      </header>
 
-      {/* Bottom navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 h-[72px] bg-[oklch(11%_0.01_250)] border-t border-white/[0.07] flex items-center justify-around px-2 z-40">
+      {/* Pager */}
+      <motion.div className="pager" onPanEnd={handleSwipe}>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={tab}
+            className="absolute inset-0 flex flex-col"
+            initial={{ x: direction * 46, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: direction * -46, opacity: 0 }}
+            transition={{ duration: 0.24, ease: [0.22, 0.61, 0.36, 1] }}
+          >
+            {tab === 'misiones'  && (
+              <MisionesPage onSpeakerTap={i => { setOpenSeminar(i); go('seminario') }} />
+            )}
+            {tab === 'programa'  && <ProgramaPage />}
+            {tab === 'seminario' && (
+              <SeminarioPage initialOpen={openSeminar} onOpened={() => setOpenSeminar(null)} />
+            )}
+            {tab === 'actividad' && (
+              <ActivityPage playSignal={playSignal} onPlayingChange={setVoicePlaying} />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Bottom tab bar */}
+      <nav className="tabbar">
         {tabs.map(({ id, label, Icon }) => {
           const active = tab === id
           return (
             <button
               key={id}
-              onClick={() => setTab(id)}
-              className="flex flex-col items-center gap-1 py-2 px-6 active:scale-90 transition-transform"
+              onClick={() => go(id)}
+              className={'tabitem' + (active ? ' active' : '')}
             >
-              <Icon
-                className={`w-[22px] h-[22px] transition-colors ${
-                  active ? 'text-[#F05A24]' : 'text-white/30'
-                }`}
-              />
-              <span
-                className={`text-[10px] font-semibold tracking-wide uppercase transition-colors ${
-                  active ? 'text-[#F05A24]' : 'text-white/30'
-                }`}
-              >
-                {label}
-              </span>
+              {active && (
+                <motion.span
+                  layoutId="tab-ind"
+                  className="ti-ind"
+                  transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                />
+              )}
+              <span className="ti-icon"><Icon size={23} strokeWidth={active ? 2 : 1.7} /></span>
+              <span className="ti-label">{label}</span>
             </button>
           )
         })}
