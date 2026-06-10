@@ -19,31 +19,7 @@ const PARAGRAPHS = [
 
 const REGISTRATION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfIXm-e4Q37_ojAakDkegu3oXziN1NKLMB0QrPMqaubgKyv8g/viewform?usp=preview'
 
-// ─── Speakers / Seminaristas ─────────────────────────────────────────────────
-// Place photos in public/speakers/ — filename = slug of speaker name
-const SPEAKERS = [
-  {
-    photo: '/speakers/fylvia_copy.jpg.jpeg',
-    name: 'Dra. Fylvia Klane',
-    role: 'Expositora · Seminario 1',
-    seminar: 'El poder del servicio',
-    desc: 'Cuando servir a los demás transforma tu vida',
-  },
-  {
-    photo: '/speakers/ricardo-marin-gcs2025.jpg.jpeg',
-    name: 'Pr. Ricardo Marín',
-    role: 'Expositor · Seminario 2',
-    seminar: 'Viviendo la misión',
-    desc: 'Consejos y estrategias para el evangelismo',
-  },
-  {
-    photo: '/speakers/s_telemaque.jpg.jpeg',
-    name: 'Pr. Samuel Telemaque',
-    role: 'Expositor · Seminario 3',
-    seminar: 'Misión transcultural',
-    desc: 'Descubre cómo presentar a Cristo en otro contexto cultural',
-  },
-]
+
 
 // ─── Card Stack ───────────────────────────────────────────────────────────────
 function CardStack({ images }: { images: string[] }) {
