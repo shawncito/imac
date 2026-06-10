@@ -91,7 +91,7 @@ export default function App() {
             transition={{ duration: 0.24, ease: [0.22, 0.61, 0.36, 1] }}
           >
             {tab === 'misiones'  && (
-              <MisionesPage onSpeakerTap={i => { setOpenSeminar(i); go('seminario') }} />
+              <MisionesPage />
             )}
             {tab === 'programa'  && <ProgramaPage />}
             {tab === 'seminario' && (
