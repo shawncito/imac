@@ -300,7 +300,7 @@ function ProgramaEditor({ data, onChange }: { data: DayBlock[]; onChange: (d: Da
 // ─── Seminarios editor ────────────────────────────────────────────────────────
 function SeminariosEditor({ data, onChange }: { data: Seminar[]; onChange: (d: Seminar[]) => void }) {
   const set = (i: number, patch: Partial<Seminar>) => onChange(data.map((s, x) => x === i ? { ...s, ...patch } : s))
-  const addSeminar = () => onChange([...data, { icon: SEMINAR_ICON_KEYS[0], title: '', room: '', speaker: 'Por confirmar', description: '', mapUrl: '' }])
+  const addSeminar = () => onChange([...data, { icon: SEMINAR_ICON_KEYS[0], title: '', room: '', speaker: 'Por confirmar', speakerPhoto: '', description: '', mapUrl: '' }])
   return (
     <div className="flex flex-col gap-3">
       <SectionInfo>

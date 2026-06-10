@@ -28,12 +28,12 @@ export const CONTINENTS: string[] = [
   'M778 330 Q830 320 872 336 Q898 352 887 384 Q871 410 834 410 Q797 404 781 378 Q768 352 778 330 Z',
 ]
 
-// THE flight route — Centroamérica → Rusia — in the route layer's 1000×240 space.
+// THE flight route — Centroamérica / El Salvador → Rusia — in the route layer's 1000×240 space.
 // Endpoints sit at x=10 and x=990 so they always land at the visual screen edges
 // on every device width (SVG scales uniformly via preserveAspectRatio="xMidYMid meet").
-export const FLIGHT_PATH = 'M115 182 C260 90 430 100 540 124 C680 158 820 112 880 58'
-const ORIGIN = { x: 115, y: 182 }  // Centroamérica
+const ORIGIN = { x: 120, y: 180 }  // Centroamérica / El Salvador
 const DEST   = { x: 880, y: 58  }  // Rusia oriental
+export const FLIGHT_PATH = `M${ORIGIN.x} ${ORIGIN.y} C260 90 430 100 540 124 C680 158 820 112 ${DEST.x} ${DEST.y}`
 
 // Clean top-view airplane silhouette, nose pointing up (-y).
 export function Plane({ size = 16, color = ACCENT, opacity = 1 }: { size?: number; color?: string; opacity?: number }) {
@@ -96,7 +96,7 @@ export default function WorldBackdrop({ showPlane = false }: { showPlane?: boole
       </svg>
 
       {/* Flight route layer (full-width) — static dashed path + optional plane */}
-      <svg className="wb-route" viewBox="0 0 1000 240" fill="none" preserveAspectRatio="xMidYMid meet">
+      <svg className="wb-route" viewBox="0 0 1000 240" fill="none" preserveAspectRatio="xMinYMid meet">
         <path ref={pathRef} d={FLIGHT_PATH} stroke={ACCENT} strokeOpacity="0.55"
           strokeWidth="2.5" strokeDasharray="4 9" strokeLinecap="round" />
         <circle cx={ORIGIN.x} cy={ORIGIN.y} r="4.5" fill={ACCENT} fillOpacity="0.55" />

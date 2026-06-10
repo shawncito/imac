@@ -72,11 +72,6 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
     setShowLang(false)
   }
 
-  function reroll() {
-    if (isPlaying) stop()
-    setVerseIndex(i => randIdx(lang.verses.length, i))
-  }
-
   function togglePlay() {
     if (isPaused) { resume(); return }
     if (isPlaying) { pause(); return }
