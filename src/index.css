@@ -57,8 +57,9 @@ body {
 .misionero-bg {
   position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
 }
-.wb-map   { position: absolute; top: 0; left: 50%; transform: translateX(-50%); display: block; }
-.wb-route { position: absolute; top: 16%; left: 0; width: 100%; height: auto; display: block; }
+/* One responsive SVG: width tracks the viewport so the route endpoints stay
+   anchored to Centroamérica / Rusia oriental on every device size. */
+.wb-map { position: absolute; top: 14%; left: 0; width: 100%; height: auto; display: block; }
 
 /* ----- app header ----- */
 .appbar {
@@ -375,8 +376,7 @@ body {
 .prog-card.now .prog-content {
   border-color: color-mix(in srgb, var(--accent) 60%, transparent);
   background: linear-gradient(135deg, #131b38 0%, #0f1828 100%);
-  box-shadow: inset 3px 0 0 var(--accent),
-              0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent),
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent),
               0 14px 36px -18px color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
@@ -423,6 +423,16 @@ body {
 /* ===== wave bars (VOZ playing) ===== */
 @keyframes wave { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
 .wave-bar { width: 3px; border-radius: 9999px; background: var(--accent); animation: wave 0.9s ease-in-out infinite; }
+
+/* respect reduced-motion: kill looping/decorative motion, keep state changes instant */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* swipe hint */
 .swipe-hint { text-align: center; font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--faint); padding: 6px 0 0; }
@@ -548,8 +558,10 @@ body {
 /* CTA 2027 */
 .mis-cta {
   margin: 40px 20px 8px; padding: 32px 20px;
-  background: linear-gradient(135deg, rgba(255,90,31,0.12) 0%, rgba(255,90,31,0.04) 100%);
-  border: 1px solid rgba(255,90,31,0.28); border-radius: 20px;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 12%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 4%, transparent) 100%);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); border-radius: 20px;
   text-align: center;
 }
 .mis-cta-title {
@@ -559,7 +571,7 @@ body {
 .mis-cta-sub { font-size: 0.95rem; color: rgba(244,241,235,0.75); line-height: 1.6; margin-bottom: 24px; }
 .mis-btn-primary {
   display: inline-flex; align-items: center; gap: 8px;
-  color: #fff; font-weight: 700; font-size: 15px; letter-spacing: 0.3px;
+  color: #fff7f2; font-weight: 700; font-size: 15px; letter-spacing: 0.3px;
   padding: 14px 28px; border-radius: 100px; text-decoration: none;
   transition: opacity 0.15s, transform 0.15s;
 }
@@ -578,5 +590,5 @@ body {
 .mis-vivid-link {
   display: inline-flex; align-items: center; gap: 5px;
   color: var(--accent); font-size: 13px; font-weight: 700; text-decoration: none;
-  letter-spacing: 0.3px; border-bottom: 1px solid rgba(255,90,31,0.35); padding-bottom: 1px;
+  letter-spacing: 0.3px; border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); padding-bottom: 1px;
 }
