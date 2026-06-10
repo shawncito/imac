@@ -199,7 +199,7 @@ export default function MisionesPage({ onSpeakerTap }: { onSpeakerTap?: (i: numb
           viewport={{ once: true }} transition={{ duration: 0.5 }}>
           <span className="page-kicker" style={{ color: ACCENT }}>Galería</span>
           <h2 className="mis-section-title">Misión Amanecer 2026</h2>
-          <p className="page-sub mis-section-sub">El Salvador · Junio 2026</p>
+          <p className="page-sub mis-section-sub">El Salvador · Marzo 2026</p>
         </motion.div>
 
         <motion.div
@@ -209,7 +209,28 @@ export default function MisionesPage({ onSpeakerTap }: { onSpeakerTap?: (i: numb
         </motion.div>
       </div>
 
-      {/* ── 4. Seminaristas ─────────────────────────────────────────────── */}
+{/* ── 4. CTA Misión Amanecer 2027 ─────────────────────────────────── */}
+      <motion.div className="mis-cta"
+        initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }} transition={{ duration: 0.6 }}>
+        <span className="page-kicker" style={{ color: ACCENT }}>Próxima edición</span>
+        <h2 className="mis-cta-title">Misión Amanecer 2027</h2>
+        <p className="mis-cta-sub">
+          Si te gusta hacer misión mediante este tipo de actividades y estás interesado
+          en participar en el próximo Misión Amanecer, regístrate en el siguiente link.
+        </p>
+        <a
+          href={REGISTRATION_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mis-btn-primary"
+          style={{ background: ACCENT }}
+        >
+          Inscribirme <ArrowRight size={16} />
+        </a>
+      </motion.div>
+      
+      {/* ── 5. Seminaristas ─────────────────────────────────────────────── */}
       <div className="mis-section">
         <motion.div
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
@@ -254,26 +275,7 @@ export default function MisionesPage({ onSpeakerTap }: { onSpeakerTap?: (i: numb
         </div>
       </div>
 
-      {/* ── 5. CTA Misión Amanecer 2027 ─────────────────────────────────── */}
-      <motion.div className="mis-cta"
-        initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }} transition={{ duration: 0.6 }}>
-        <span className="page-kicker" style={{ color: ACCENT }}>Próxima edición</span>
-        <h2 className="mis-cta-title">Misión Amanecer 2027</h2>
-        <p className="mis-cta-sub">
-          Si te gusta hacer misión mediante este tipo de actividades y estás interesado
-          en participar en el próximo Misión Amanecer, regístrate en el siguiente link.
-        </p>
-        <a
-          href={REGISTRATION_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mis-btn-primary"
-          style={{ background: ACCENT }}
-        >
-          Inscribirme <ArrowRight size={16} />
-        </a>
-      </motion.div>
+      
 
       {/* ── 6. VividFaith ────────────────────────────────────────────────── */}
       <motion.div className="mis-vivid"
