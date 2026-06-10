@@ -20,6 +20,7 @@ const tabs = [
   { id: 'actividad' as Tab, label: 'Actividad', Icon: BookOpen },
 ]
 
+
 function WaveBars() {
   return (
     <div className="flex items-center gap-[3px] h-[13px]">

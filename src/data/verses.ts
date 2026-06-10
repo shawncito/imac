@@ -17,13 +17,13 @@ export const languages: LanguageData[] = [
   {
     code: 'es', name: 'Spanish', nativeName: 'Español', flag: '🇨🇱', ttsLang: 'es-CL',
     verses: [
-      { reference: 'Juan 15:16 NVI', text: 'No me escogieron ustedes a mí, sino que yo los escogí a ustedes y los comisioné para que vayan y den fruto, un fruto que perdure. Así el Padre les dará todo lo que pidan en mi nombre.' },
+      { reference: 'Juan 15:16 ', text: 'No me escogieron ustedes a mí, sino que yo los escogí a ustedes y los comisioné para que vayan y den fruto, un fruto que perdure. Así el Padre les dará todo lo que pidan en mi nombre.' },
     ],
   },
   {
     code: 'pt', name: 'Portuguese', nativeName: 'Português', flag: '🇧🇷', ttsLang: 'pt-BR',
     verses: [
-      { reference: 'João 15:16 NVI', text: 'Não fui vocês que me escolheram, mas fui eu que os escolhi e os designei para que vão e deem fruto, fruto que permaneça. Assim o Pai lhes dará tudo o que pedirem em meu nome.' },
+      { reference: 'João 15:16 ', text: 'Não fui vocês que me escolheram, mas fui eu que os escolhi e os designei para que vão e deem fruto, fruto que permaneça. Assim o Pai lhes dará tudo o que pedirem em meu nome.' },
     ],
   },
   {
