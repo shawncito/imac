@@ -146,7 +146,7 @@ export default function SeminarioPage({
 
                       {s.mapUrl
                         ? <div className="sem-map"><img src={s.mapUrl} alt={`Mapa: ${s.room}`} loading="lazy" /></div>
-                        : <div className="sem-map-empty">🗺️ Mapa del campus próximamente</div>}
+                        : <div className="sem-map-empty"> Mapa del campus próximamente</div>}
                     </div>
                   </motion.div>
                 )}

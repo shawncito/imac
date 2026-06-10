@@ -230,50 +230,7 @@ export default function MisionesPage({ onSpeakerTap }: { onSpeakerTap?: (i: numb
         </a>
       </motion.div>
       
-      {/* ── 5. Seminaristas ─────────────────────────────────────────────── */}
-      <div className="mis-section">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }} transition={{ duration: 0.5 }}>
-          <span className="page-kicker" style={{ color: ACCENT }}>Expositores</span>
-          <h2 className="mis-section-title">Seminaristas</h2>
-          <p className="page-sub mis-section-sub">
-            Tres voces que guiarán los seminarios del sábado.
-          </p>
-        </motion.div>
-
-        <div className="mis-speakers">
-          {SPEAKERS.map((sp, i) => (
-            <motion.div key={i} className="mis-speaker-card"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.07 }}
-              onClick={() => onSpeakerTap?.(i)}
-              role={onSpeakerTap ? 'button' : undefined}
-              tabIndex={onSpeakerTap ? 0 : undefined}
-              style={{ cursor: onSpeakerTap ? 'pointer' : undefined }}
-              onKeyDown={e => e.key === 'Enter' && onSpeakerTap?.(i)}
-            >
-              <div className="mis-speaker-photo-wrap">
-                <img src={sp.photo} alt={sp.name} className="mis-speaker-photo"
-                  onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-              </div>
-              <div className="mis-speaker-info">
-                <p className="mis-speaker-seminar" style={{ color: ACCENT }}>{sp.seminar}</p>
-                <h3 className="mis-speaker-name">{sp.name}</h3>
-                <p className="mis-speaker-role">{sp.role}</p>
-                {sp.desc && <p className="mis-speaker-desc">{sp.desc}</p>}
-                {onSpeakerTap && (
-                  <p style={{ fontSize: 11, color: ACCENT, marginTop: 6, fontWeight: 700, letterSpacing: '0.5px' }}>
-                    Ver seminario →
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
+      
 
       
 
