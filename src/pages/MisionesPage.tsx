@@ -71,7 +71,7 @@ function CardStack({ images }: { images: string[] }) {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-export default function MisionesPage({ onSpeakerTap }: { onSpeakerTap?: (i: number) => void }) {
+export default function MisionesPage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
