@@ -27,9 +27,9 @@ export default function SeminarioPage({
   return (
     <div className="tab-scroll">
       <header className="page-head">
-        <div className="page-kicker" style={{ color: ACCENT }}>Sábado 27 · 2:00–4:00 pm</div>
+        <div className="page-kicker" style={{ color: ACCENT }}>Sábado 27 · 2:00–4:30 pm</div>
         <h1 className="page-title">Seminarios</h1>
-        <p className="page-sub">Tres seminarios simultáneos. Elige uno y vive la misión.</p>
+        <p className="page-sub">Tres expositores simultáneos en el Salón de Actos. Pasaporte 2 en Israel Leito.</p>
       </header>
 
       {seminars.length === 0 && (
@@ -67,12 +67,7 @@ export default function SeminarioPage({
                     transition={{ type: 'spring', stiffness: 340, damping: 32 }}
                   />
                 )}
-                {/* Fallback number badge when no photo */}
-                {!s.speakerPhoto && (
-                  <div className="sem-index" style={{ color: ACCENT, borderColor: ACCENT }}>
-                    {String(i + 1).padStart(2, '0')}
-                  </div>
-                )}
+
 
                 <div className="sem-body">
                   <h3 className="sem-title">{s.title}</h3>
@@ -156,6 +151,11 @@ export default function SeminarioPage({
         })}
       </div>
 
+      <div className="prog-end" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginTop: 8 }}>
+        <img src="/logo-icon.webp" alt="UNADECA Instituto Misionero" style={{ height: 36, width: 'auto', opacity: 0.6 }}
+          onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+        <span>Servicio Voluntario Adventista · UNADECA</span>
+      </div>
       <p className="swipe-hint">Desliza para cambiar de sección</p>
     </div>
   )
