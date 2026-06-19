@@ -524,6 +524,7 @@ body {
 .mis-stack-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mis-stack-controls {
   display: flex; align-items: center; gap: 18px;
+  position: relative; z-index: 10;
 }
 .mis-stack-btn {
   background: rgba(255,255,255,0.08); border: 1px solid var(--line);

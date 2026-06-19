@@ -6,8 +6,8 @@ import { flightProgress } from '../lib/flightProgress'
 const ACCENT = '#FF5A1F'
 
 // ─── 2026 gallery images ─────────────────────────────────────────────────────
-const GALLERY_2026: string[] = Array.from({ length: 14 }, (_, i) =>
-  `/2026/foto-${String(i + 1).padStart(2, '0')}.jpg`
+const GALLERY_2026: string[] = [1, 3, 5, 6, 7, 8, 9, 11, 12, 14].map(n =>
+  `/2026/foto-${String(n).padStart(2, '0')}.jpg`
 )
 
 const INSTAGRAM_URL = 'https://www.instagram.com/sva_unadeca?igsh=MW9pNTNuOTA4eWFmMg=='
@@ -60,9 +60,9 @@ function CardStack({ images }: { images: string[] }) {
         })}
       </div>
       <div className="mis-stack-controls">
-        <button onClick={prev} className="mis-stack-btn">←</button>
+        <button onClick={e => { e.stopPropagation(); prev() }} className="mis-stack-btn">←</button>
         <span className="mis-stack-count">{top + 1} / {count}</span>
-        <button onClick={next} className="mis-stack-btn">→</button>
+        <button onClick={e => { e.stopPropagation(); next() }} className="mis-stack-btn">→</button>
       </div>
       <p className="mis-stack-hint">Toca para ver más fotos</p>
     </div>
@@ -253,7 +253,7 @@ export default function MisionesPage({ onSpeakerTap }: { onSpeakerTap?: (i: numb
       </motion.div>
 
       <div className="prog-end" style={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-        <img src="/logo-icon.webp" alt="UNADECA Instituto Misionero" style={{ height: 36, width: 'auto', opacity: 0.6 }}
+        <img src="/logo-instituto-misionero.png" alt="Instituto Misionero UNADECA" style={{ height: 44, width: 'auto', opacity: 0.85 }}
           onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
         <span>Servicio Voluntario Adventista · UNADECA</span>
       </div>
