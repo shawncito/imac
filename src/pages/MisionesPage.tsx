@@ -184,11 +184,7 @@ export default function MisionesPage() {
         </motion.div>
       </div>
 
-<<<<<<< HEAD
-{/* ── 4. CTA Misión Amanecer 2027 ─────────────────────────────────── */}
-=======
       {/* ── 5. CTA Misión Amanecer 2027 ─────────────────────────────────── */}
->>>>>>> v1
       <motion.div className="mis-cta"
         initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }} transition={{ duration: 0.6 }}>
