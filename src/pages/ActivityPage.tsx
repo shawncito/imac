@@ -116,7 +116,7 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
       </div>
 
       {/* Toolbar: voice + reroll */}
-      <div className="verse-toolbar">
+      <div className="verse-toolbar" style={{ position: 'relative', zIndex: 35 }}>
         <div style={{ position: 'relative' }}>
           <button className="voice-chip" onClick={() => { setShowVoice(o => !o); setShowLang(false) }}>
             <Mic size={14} />
@@ -156,7 +156,7 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
       </div>
 
       {/* Verse card */}
-      <div className="verse-stage">
+      <div className="verse-stage" style={{ position: 'relative', zIndex: 1 }}>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={`${selectedLang}-${verseIndex}`}
