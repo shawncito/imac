@@ -192,7 +192,11 @@ export default function ProgramaPage() {
         )
       })}
 
-      <div className="prog-end">Servicio Voluntario Adventista</div>
+      <div className="prog-end" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+        <img src="/logo-icon.webp" alt="UNADECA Instituto Misionero" style={{ height: 36, width: 'auto', opacity: 0.6 }}
+          onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+        <span>Servicio Voluntario Adventista</span>
+      </div>
     </div>
   )
 }

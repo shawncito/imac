@@ -5,11 +5,12 @@ import { flightProgress } from '../lib/flightProgress'
 
 const ACCENT = '#FF5A1F'
 
-// ─── 2026 gallery images (put files in public/2026/) ─────────────────────────
-// Rename your photos: foto-01.jpg, foto-02.jpg, etc. and place in public/2026/
+// ─── 2026 gallery images ─────────────────────────────────────────────────────
 const GALLERY_2026: string[] = Array.from({ length: 14 }, (_, i) =>
   `/2026/foto-${String(i + 1).padStart(2, '0')}.jpg`
 )
+
+const INSTAGRAM_URL = 'https://www.instagram.com/sva_unadeca?igsh=MW9pNTNuOTA4eWFmMg=='
 
 // ─── Mission text paragraphs ─────────────────────────────────────────────────
 const PARAGRAPHS = [
@@ -18,8 +19,6 @@ const PARAGRAPHS = [
 ]
 
 const REGISTRATION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfIXm-e4Q37_ojAakDkegu3oXziN1NKLMB0QrPMqaubgKyv8g/viewform?usp=preview'
-
-
 
 // ─── Card Stack ───────────────────────────────────────────────────────────────
 function CardStack({ images }: { images: string[] }) {
@@ -185,7 +184,11 @@ export default function MisionesPage() {
         </motion.div>
       </div>
 
+<<<<<<< HEAD
 {/* ── 4. CTA Misión Amanecer 2027 ─────────────────────────────────── */}
+=======
+      {/* ── 5. CTA Misión Amanecer 2027 ─────────────────────────────────── */}
+>>>>>>> v1
       <motion.div className="mis-cta"
         initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }} transition={{ duration: 0.6 }}>
@@ -232,7 +235,36 @@ export default function MisionesPage() {
         </div>
       </motion.div>
 
-      <div className="prog-end" style={{ marginTop: 8 }}>Servicio Voluntario Adventista · UNADECA</div>
+      {/* ── 7. Instagram ─────────────────────────────────────────────────── */}
+      <motion.div className="mis-vivid"
+        initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }} transition={{ duration: 0.5 }}>
+        <div className="mis-vivid-inner">
+          <div style={{ width: 44, height: 44, borderRadius: 14, background: 'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/>
+            </svg>
+          </div>
+          <div>
+            <h3 className="mis-vivid-title">Síguenos en Instagram</h3>
+            <p className="mis-vivid-sub">
+              Mantente al día con todas las novedades del Servicio Voluntario Adventista UNADECA.
+            </p>
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"
+              className="mis-vivid-link">
+              @sva_unadeca <ExternalLink size={13} />
+            </a>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="prog-end" style={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+        <img src="/logo-icon.webp" alt="UNADECA Instituto Misionero" style={{ height: 36, width: 'auto', opacity: 0.6 }}
+          onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+        <span>Servicio Voluntario Adventista · UNADECA</span>
+      </div>
     </div>
   )
 }
