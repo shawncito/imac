@@ -40,17 +40,14 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
   const voices = getVoicesForLang(lang.ttsLang)
   const rtl    = lang.code === 'ar' || lang.code === 'he'
 
-  // Report playing state up so the VOZ button shows wave bars.
   useEffect(() => { onPlayingChange(isPlaying && !isPaused) }, [isPlaying, isPaused, onPlayingChange])
 
-  // VOZ button in the header bumps playSignal → start playback.
   useEffect(() => {
     if (playSignal === 0) return
     if (!isPlaying) speak(verse.text, lang.ttsLang, `${verse.reference}. `)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playSignal])
 
-  // Tokenize verse into words with char ranges for highlight.
   const tokens = useMemo(() => {
     const out: { text: string; start: number; space: boolean }[] = []
     let pos = 0
@@ -80,8 +77,9 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
 
   return (
     <div className="tab-actividad">
-      {/* Language picker */}
-      <div style={{ position: 'relative', zIndex: 40 }}>
+
+      {/* ── Language picker ── */}
+      <div style={{ position: 'relative', zIndex: 40, flexShrink: 0 }}>
         <button className="lang-trigger" onClick={() => { setShowLang(o => !o); setShowVoice(false) }}>
           <span className="lang-badge" style={{ color: ACCENT }}>{BADGE[lang.code] ?? lang.code.toUpperCase()}</span>
           <span className="lang-name">{lang.nativeName}</span>
@@ -115,48 +113,8 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
         </AnimatePresence>
       </div>
 
-      {/* Toolbar: voice + reroll */}
-      <div className="verse-toolbar" style={{ position: 'relative', zIndex: 35 }}>
-        <div style={{ position: 'relative' }}>
-          <button className="voice-chip" onClick={() => { setShowVoice(o => !o); setShowLang(false) }}>
-            <Mic size={14} />
-            <span>{selectedVoice ? selectedVoice.name : 'Voz automática'}</span>
-            <ChevronDown size={13} style={{ opacity: 0.5 }} />
-          </button>
-          <AnimatePresence>
-            {showVoice && (
-              <>
-                <div className="lang-scrim" onClick={() => setShowVoice(false)} />
-                <motion.div
-                  className="voice-sheet"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  transition={{ duration: 0.18 }}
-                >
-                  <div className="voice-sheet-title">Voz · {lang.code.toUpperCase()} · {voices.length}</div>
-                  <button className={'voice-opt' + (selectedVoice === null ? ' active' : '')} onClick={() => { setSelectedVoice(null); setShowVoice(false) }}>
-                    <Mic size={15} /><span>Automática</span>
-                    {selectedVoice === null && <span style={{ marginLeft: 'auto', color: ACCENT, display: 'flex' }}><Check size={15} /></span>}
-                  </button>
-                  {voices.map(v => {
-                    const active = selectedVoice?.name === v.name
-                    return (
-                      <button key={v.name} className={'voice-opt' + (active ? ' active' : '')} onClick={() => { setSelectedVoice(v); setShowVoice(false) }}>
-                        <Mic size={15} /><span>{v.name}</span>
-                        {active && <span style={{ marginLeft: 'auto', color: ACCENT, display: 'flex' }}><Check size={15} /></span>}
-                      </button>
-                    )
-                  })}
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* Verse card */}
-      <div className="verse-stage" style={{ position: 'relative', zIndex: 1 }}>
+      {/* ── Verse card ── */}
+      <div className="verse-stage">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={`${selectedLang}-${verseIndex}`}
@@ -196,6 +154,48 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* ── Voice picker — below card, outside overflow:hidden context ── */}
+      <div className="voice-row">
+        <div style={{ position: 'relative' }}>
+          <button className="voice-chip" onClick={() => { setShowVoice(o => !o); setShowLang(false) }}>
+            <Mic size={14} />
+            <span>{selectedVoice ? selectedVoice.name : 'Voz automática'}</span>
+            <ChevronDown size={13} style={{ opacity: 0.5 }} />
+          </button>
+          <AnimatePresence>
+            {showVoice && (
+              <>
+                <div className="lang-scrim" onClick={() => setShowVoice(false)} />
+                <motion.div
+                  className="voice-sheet"
+                  style={{ bottom: 'calc(100% + 10px)', top: 'auto' }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <div className="voice-sheet-title">Voz · {lang.code.toUpperCase()} · {voices.length}</div>
+                  <button className={'voice-opt' + (selectedVoice === null ? ' active' : '')} onClick={() => { setSelectedVoice(null); setShowVoice(false) }}>
+                    <Mic size={15} /><span>Automática</span>
+                    {selectedVoice === null && <span style={{ marginLeft: 'auto', color: ACCENT, display: 'flex' }}><Check size={15} /></span>}
+                  </button>
+                  {voices.map(v => {
+                    const active = selectedVoice?.name === v.name
+                    return (
+                      <button key={v.name} className={'voice-opt' + (active ? ' active' : '')} onClick={() => { setSelectedVoice(v); setShowVoice(false) }}>
+                        <Mic size={15} /><span>{v.name}</span>
+                        {active && <span style={{ marginLeft: 'auto', color: ACCENT, display: 'flex' }}><Check size={15} /></span>}
+                      </button>
+                    )
+                  })}
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
     </div>
   )
 }

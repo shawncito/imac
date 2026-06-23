@@ -23,10 +23,29 @@ export async function setConfig(key: string, value: unknown): Promise<void> {
 
 /** Upload a file to Supabase Storage `images` bucket. Returns the public URL. */
 export async function uploadImage(file: File, path: string): Promise<string> {
-  const { error } = await supabase.storage
-    .from('images')
-    .upload(path, file, { upsert: true, contentType: file.type })
-  if (error) throw new Error(error.message)
-  const { data } = supabase.storage.from('images').getPublicUrl(path)
-  return data.publicUrl
+  // Sanitize path: remove double slashes, trim, and ensure no trailing slashes
+  const cleanPath = path.replace(/\/+/g, '/').trim().replace(/\/$/, '')
+  
+  const { error, data } = await supabase.storage
+    .from('imagenes')
+    .upload(cleanPath, file, { 
+      upsert: true, 
+      contentType: file.type || 'application/octet-stream'
+    })
+  
+  if (error) {
+    console.error('Upload error:', {
+      message: error.message,
+      statusCode: (error as { statusCode?: string }).statusCode,
+      cause: (error as { error?: string }).error,
+      path: cleanPath,
+      file: file.name,
+      size: file.size,
+    })
+    const detail = (error as { error?: string }).error ?? error.message ?? 'error desconocido'
+    throw new Error(`Error al subir imagen (${(error as { statusCode?: string }).statusCode ?? '?'}): ${detail}`)
+  }
+  
+  const { data: urlData } = supabase.storage.from('imagenes').getPublicUrl(cleanPath)
+  return urlData.publicUrl
 }
