@@ -94,7 +94,7 @@ body {
 
 /* ===== ACTIVIDAD ===== */
 .tab-actividad {
-  height: 100%; display: flex; flex-direction: column; min-height: 0;
+  height: 100%; display: flex; flex-direction: column; min-height: 0; gap: 16px;
   padding: 2px
     max(20px, env(safe-area-inset-right) + 16px)
     max(16px, env(safe-area-inset-bottom) + 8px)
@@ -132,7 +132,7 @@ body {
 .lang-count { margin-left: auto; font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
 .lang-item.active .lang-count { margin-left: 0; }
 
-.verse-toolbar { display: flex; align-items: center; gap: 8px; margin: 13px 0 12px; }
+
 .voice-chip, .reroll {
   display: flex; align-items: center; gap: 7px;
   padding: 8px 13px; border-radius: 11px; cursor: pointer;
@@ -158,6 +158,8 @@ body {
 }
 .voice-opt:hover, .voice-opt.active { background: rgba(255,255,255,0.05); }
 .voice-opt svg { color: var(--muted); flex: 0 0 auto; }
+
+.voice-row { position: relative; flex-shrink: 0; display: flex; justify-content: center; padding-bottom: 4px; }
 
 /* verse stage + card */
 .verse-stage { flex: 1 1 auto; min-height: 0; }
