@@ -26,7 +26,7 @@ export async function uploadImage(file: File, path: string): Promise<string> {
   // Sanitize path: remove double slashes, trim, and ensure no trailing slashes
   const cleanPath = path.replace(/\/+/g, '/').trim().replace(/\/$/, '')
   
-  const { error, data } = await supabase.storage
+  const { error } = await supabase.storage
     .from('imagenes')
     .upload(cleanPath, file, { 
       upsert: true, 
