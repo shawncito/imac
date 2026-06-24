@@ -199,7 +199,7 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
 
         </div>
 
-        {/* Verse card */}
+        {/* TODO: verse card — pendiente rediseño
         <div style={{
           background: 'linear-gradient(180deg,#fbf8f2 0%,#f3ece0 100%)', color: '#14110b',
           borderRadius: 22, padding: 20, border: '1px solid rgba(0,0,0,0.05)',
@@ -207,15 +207,7 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Juan 15:16</div>
-            <button
-              onClick={handleSpeak}
-              style={{
-                width: 34, height: 34, borderRadius: '50%',
-                background: 'color-mix(in srgb, #FF5A1F 14%, transparent)',
-                border: '1px solid color-mix(in srgb, #FF5A1F 40%, transparent)',
-                display: 'grid', placeItems: 'center', cursor: 'pointer',
-              }}
-            >
+            <button onClick={handleSpeak} style={{ width: 34, height: 34, borderRadius: '50%', background: 'color-mix(in srgb, #FF5A1F 14%, transparent)', border: '1px solid color-mix(in srgb, #FF5A1F 40%, transparent)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill={ACCENT}><path d="M8 5v14l11-7z" /></svg>
             </button>
           </div>
@@ -223,44 +215,37 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
             Yo los escogí a ustedes y los comisioné para que vayan y den fruto, un fruto que perdure.
           </p>
         </div>
+        */}
 
-        {/* Instagram */}
-        <div style={{
-          background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.11)',
-          borderRadius: 20, padding: '20px 20px 18px', textAlign: 'left',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none" />
-              </svg>
-            </div>
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'rgba(244,241,235,0.45)', marginBottom: 4 }}>Redes sociales</div>
-              <div style={{ fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 500, color: '#F4F1EB' }}>Síguenos en Instagram</div>
-            </div>
+        {/* Instagram — fila compacta estilo diferente */}
+        <a
+          href="https://www.instagram.com/sva_unadeca?igsh=MW9pNTNuOTA4eWFmMg=="
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 14,
+            background: 'linear-gradient(110deg,rgba(220,39,67,0.18) 0%,rgba(188,24,136,0.12) 100%)',
+            border: '1px solid rgba(220,39,67,0.28)',
+            borderRadius: 16, padding: '14px 16px', textDecoration: 'none', color: '#F4F1EB',
+          }}
+        >
+          <div style={{
+            width: 40, height: 40, borderRadius: 11, flexShrink: 0,
+            background: 'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',
+            display: 'grid', placeItems: 'center',
+          }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none" />
+            </svg>
           </div>
-          <p style={{ fontSize: 13.5, lineHeight: 1.65, color: 'rgba(244,241,235,0.68)', margin: '14px 0' }}>
-            Mantente al día con todas las novedades del Servicio Voluntario Adventista UNADECA.
-          </p>
-          <a
-            href="https://www.instagram.com/sva_unadeca?igsh=MW9pNTNuOTA4eWFmMg=="
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              color: ACCENT, fontSize: 13, fontWeight: 700, textDecoration: 'none',
-              letterSpacing: 0.3,
-              borderBottom: `1px solid color-mix(in srgb, ${ACCENT} 35%, transparent)`,
-              paddingBottom: 1,
-            }}
-          >
-            @sva_unadeca
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          </a>
-        </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#F4F1EB' }}>@sva_unadeca</div>
+            <div style={{ fontSize: 11.5, color: 'rgba(244,241,235,0.55)', marginTop: 2 }}>Síguenos en Instagram</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4, flexShrink: 0 }}><path d="m9 6 6 6-6 6" /></svg>
+        </a>
 
       </div>
     </div>
