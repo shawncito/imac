@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useScroll, useMotionValueEvent } from 'motion/react'
 import { flightProgress } from '../lib/flightProgress'
 import { useSpeech } from '../hooks/useSpeech'
+import VerseBoard from '../components/VerseBoard'
 import logoHand from '../assets/logo-hand.png'
 import vividFaithLogo from '../assets/vividfaith-logo.svg'
 import misiones2026 from '../assets/misiones2026.jpeg'
@@ -194,23 +195,8 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
 
         </div>
 
-        {/* TODO: verse card — pendiente rediseño
-        <div style={{
-          background: 'linear-gradient(180deg,#fbf8f2 0%,#f3ece0 100%)', color: '#14110b',
-          borderRadius: 22, padding: 20, border: '1px solid rgba(0,0,0,0.05)',
-          boxShadow: '0 30px 60px -28px rgba(0,0,0,0.7)', marginBottom: 14,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.2, textTransform: 'uppercase' }}>Juan 15:16</div>
-            <button onClick={handleSpeak} style={{ width: 34, height: 34, borderRadius: '50%', background: 'color-mix(in srgb, #FF5A1F 14%, transparent)', border: '1px solid color-mix(in srgb, #FF5A1F 40%, transparent)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill={ACCENT}><path d="M8 5v14l11-7z" /></svg>
-            </button>
-          </div>
-          <p style={{ fontFamily: 'var(--serif)', fontSize: 17, lineHeight: 1.5, letterSpacing: -0.1, margin: 0 }}>
-            Yo los escogí a ustedes y los comisioné para que vayan y den fruto, un fruto que perdure.
-          </p>
-        </div>
-        */}
+        {/* Pizarra compartida de versículos */}
+        <VerseBoard />
 
         {/* Instagram — barra lateral con texto */}
         <a

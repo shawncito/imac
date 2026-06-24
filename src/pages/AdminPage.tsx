@@ -3,9 +3,12 @@ import { AnimatePresence, motion } from 'motion/react'
 import {
   Plus, Trash2, ChevronUp, ChevronDown, Save, LogOut, Check,
   Loader2, Lock, Clock, CalendarDays, Users, Settings as SettingsIcon,
-  ExternalLink, Info, MapPin, Mic,
+  ExternalLink, Info, MapPin, Mic, MessageSquareQuote, EyeOff,
 } from 'lucide-react'
-import { getConfig, setConfig, uploadImage } from '../lib/supabase'
+import {
+  getConfig, setConfig, uploadImage,
+  getAllVerseSubmissions, hideSubmission, type VerseSubmission,
+} from '../lib/supabase'
 import {
   PROGRAMA_KEY, SEMINARIOS_KEY, SETTINGS_KEY,
   defaultPrograma, defaultSeminarios, defaultSettings,
@@ -442,11 +445,86 @@ function AjustesEditor({ value, onChange }: { value: Settings; onChange: (s: Set
   )
 }
 
+// ─── Pizarra (moderación) ─────────────────────────────────────────────────────
+function PizarraEditor() {
+  const [subs, setSubs] = useState<VerseSubmission[]>([])
+  const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState<string | null>(null)
+
+  const load = async () => {
+    setLoading(true)
+    setSubs(await getAllVerseSubmissions())
+    setLoading(false)
+  }
+  useEffect(() => { load() }, [])
+
+  async function hide(id: string) {
+    setBusy(id)
+    await hideSubmission(id)
+    setSubs(prev => prev.map(s => s.id === id ? { ...s, hidden: true } : s))
+    setBusy(null)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="w-5 h-5 animate-spin" style={{ color: ACCENT }} />
+        <p className="text-[12px] text-black/35">Cargando pizarra…</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <SectionInfo>
+        Versículos que la gente comparte en Inicio. Si algo es inapropiado, toca <strong>Ocultar</strong> — desaparece para todos al instante.
+      </SectionInfo>
+
+      {subs.length === 0 && (
+        <p className="text-[13px] text-black/35 text-center py-10">Aún no hay versículos compartidos.</p>
+      )}
+
+      {subs.map(s => (
+        <div key={s.id}
+          className="bg-white rounded-2xl border border-black/[0.07] shadow-sm p-4 flex flex-col gap-2"
+          style={{ opacity: s.hidden ? 0.5 : 1 }}>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-bold tracking-widest uppercase" style={{ color: ACCENT }}>
+              {s.verse_reference}
+            </span>
+            <span className="text-[11px] text-black/35">
+              {new Date(s.created_at).toLocaleString('es', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+          <p className="text-[14px] leading-snug text-[#14110b]" style={{ fontFamily: 'var(--serif)' }}>
+            {s.verse_text}
+          </p>
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <span className="text-[12.5px] font-semibold text-black/55">— {s.signer_name}</span>
+            {s.hidden ? (
+              <span className="text-[11px] font-semibold text-black/30 flex items-center gap-1">
+                <EyeOff className="w-3.5 h-3.5" /> Oculto
+              </span>
+            ) : (
+              <button onClick={() => hide(s.id)} disabled={busy === s.id}
+                className="text-[12px] font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-red-500 bg-red-500/10 active:scale-95">
+                {busy === s.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <EyeOff className="w-3.5 h-3.5" />}
+                Ocultar
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── Admin tabs config ────────────────────────────────────────────────────────
-type AdminTab = 'programa' | 'seminarios' | 'ajustes'
+type AdminTab = 'programa' | 'seminarios' | 'ajustes' | 'pizarra'
 const ADMIN_TABS: { id: AdminTab; label: string; Icon: React.ElementType }[] = [
   { id: 'programa',   label: 'Programa',   Icon: CalendarDays },
   { id: 'seminarios', label: 'Seminarios', Icon: Users },
+  { id: 'pizarra',    label: 'Pizarra',    Icon: MessageSquareQuote },
   { id: 'ajustes',    label: 'Ajustes',    Icon: SettingsIcon },
 ]
 
@@ -588,6 +666,7 @@ export default function AdminPage() {
               exit={{ x: dir * -30, opacity: 0 }} transition={{ duration: 0.2 }}>
               {tab === 'programa'   && <ProgramaEditor data={programa} onChange={setPrograma} />}
               {tab === 'seminarios' && <SeminariosEditor data={seminarios} onChange={setSeminarios} />}
+              {tab === 'pizarra'    && <PizarraEditor />}
               {tab === 'ajustes'    && <AjustesEditor value={settings} onChange={setSettings} />}
             </motion.div>
           </AnimatePresence>
