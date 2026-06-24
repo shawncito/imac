@@ -253,6 +253,13 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, flexShrink: 0, marginTop: 2 }}><path d="m9 6 6 6-6 6" /></svg>
         </a>
 
+        {/* Footer */}
+        <div className="prog-end" style={{ marginTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+          <img src="/logo-instituto-misionero.png" alt="Instituto Misionero UNADECA" style={{ height: 44, width: 'auto', opacity: 0.85 }}
+            onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          <span>Servicio Voluntario Adventista · UNADECA</span>
+        </div>
+
       </div>
     </div>
   )
