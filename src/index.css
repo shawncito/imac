@@ -405,9 +405,9 @@ body {
   flex: 0 0 auto; position: relative; z-index: 3;
   display: grid; grid-template-columns: repeat(4, 1fr);
   padding: 9px
-    max(16px, env(safe-area-inset-right) + 12px)
+    max(10px, env(safe-area-inset-right) + 6px)
     max(9px, env(safe-area-inset-bottom))
-    max(16px, env(safe-area-inset-left) + 12px);
+    max(10px, env(safe-area-inset-left) + 6px);
   border-top: 1px solid rgba(120,150,220,0.14);
   background: rgba(9,16,38,0.78); backdrop-filter: blur(16px);
 }
@@ -424,6 +424,20 @@ body {
 
 /* ===== wave bars (VOZ playing) ===== */
 @keyframes wave { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
+
+/* ===== Pizarra carousel ===== */
+.vb-carousel::-webkit-scrollbar { display: none; }
+.vb-select option { background: #141228; color: #F4F1EB; }
+
+/* ===== Misión Amanecer card tap affordance ===== */
+.ini-mision-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.ini-mision-card:active { transform: scale(0.975); }
+
+/* ===== Inicio page animations ===== */
+@keyframes dashmove { to { stroke-dashoffset: -130; } }
+@keyframes planefloat { 0%, 100% { opacity: .95; } 50% { opacity: .65; } }
+.ini-dashmove { animation: dashmove 6s linear infinite; }
+.ini-planefloat { animation: planefloat 2.4s ease-in-out infinite; }
 .wave-bar { width: 3px; border-radius: 9999px; background: var(--accent); animation: wave 0.9s ease-in-out infinite; }
 
 /* respect reduced-motion: kill looping/decorative motion, keep state changes instant */

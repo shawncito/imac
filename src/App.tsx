@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import type { PanInfo } from 'motion/react'
-import { CalendarDays, Users, BookOpen, Mic, Globe } from 'lucide-react'
+import { CalendarDays, Users, BookOpen, Mic, Home } from 'lucide-react'
 import ActivityPage from './pages/ActivityPage'
 import SeminarioPage from './pages/SeminarioPage'
 import ProgramaPage from './pages/ProgramaPage'
 import MisionesPage from './pages/MisionesPage'
+import InicioPage from './pages/InicioPage'
 import AdminPage from './pages/AdminPage'
 import WorldBackdrop from './components/WorldBackdrop'
 import logoIM from './assets/logo.webp'
 
-type Tab = 'misiones' | 'programa' | 'seminario' | 'actividad'
+type Tab = 'inicio' | 'misiones' | 'programa' | 'seminario' | 'actividad'
 
-const tabOrder: Tab[] = ['misiones', 'programa', 'seminario', 'actividad']
+const tabOrder: Tab[] = ['inicio', 'programa', 'seminario', 'actividad']
 const tabs = [
-  { id: 'misiones'  as Tab, label: 'Misiones',  Icon: Globe },
+  { id: 'inicio'    as Tab, label: 'Inicio',    Icon: Home },
   { id: 'programa'  as Tab, label: 'Programa',  Icon: CalendarDays },
   { id: 'seminario' as Tab, label: 'Seminario', Icon: Users },
   { id: 'actividad' as Tab, label: 'Actividad', Icon: BookOpen },
@@ -32,8 +33,8 @@ function WaveBars() {
 }
 
 export default function App() {
-  const [tab, setTab]           = useState<Tab>('misiones')
-  const [prev, setPrev]         = useState<Tab>('misiones')
+  const [tab, setTab]           = useState<Tab>('inicio')
+  const [prev, setPrev]         = useState<Tab>('inicio')
   const [isAdmin, setIsAdmin]   = useState(window.location.hash === '#admin')
   const [playSignal, setPlaySignal] = useState(0)
   const [voicePlaying, setVoicePlaying] = useState(false)
@@ -70,7 +71,7 @@ export default function App() {
 
   return (
     <div className="screen bg-misionero">
-      <WorldBackdrop showPlane={tab === 'misiones'} />
+      <WorldBackdrop showPlane={tab === 'inicio' || tab === 'misiones'} />
 
       <header className="appbar">
         <img src={logoIM} alt="Instituto Misionero" className="brand-logo im" />
@@ -82,7 +83,7 @@ export default function App() {
 
       {/* Pager */}
       <motion.div className="pager" onPanEnd={handleSwipe}>
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait">
           <motion.div
             key={tab}
             className="absolute inset-0 flex flex-col"
@@ -91,6 +92,13 @@ export default function App() {
             exit={{ x: direction * -46, opacity: 0 }}
             transition={{ duration: 0.24, ease: [0.22, 0.61, 0.36, 1] }}
           >
+            {tab === 'inicio'    && (
+              <InicioPage
+                onGoToMisiones={() => go('misiones')}
+
+                onSpeakChange={setVoicePlaying}
+              />
+            )}
             {tab === 'misiones'  && (
               <MisionesPage />
             )}

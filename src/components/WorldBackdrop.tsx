@@ -56,7 +56,7 @@ export function Plane({ size = 16, color = ACCENT, opacity = 1 }: { size?: numbe
  * driven by `flightProgress`. Leaving the page just unmounts the plane —
  * the route stays.
  */
-export default function WorldBackdrop({ showPlane = false }: { showPlane?: boolean }) {
+export default function WorldBackdrop({ showPlane = false, hidden = false }: { showPlane?: boolean; hidden?: boolean }) {
   const pathRef = useRef<SVGPathElement>(null)
   const lastT = useRef(0)
   const dir = useRef(1)
@@ -81,6 +81,8 @@ export default function WorldBackdrop({ showPlane = false }: { showPlane?: boole
     const heading = (Math.atan2(p2.y - p.y, p2.x - p.x) * 180) / Math.PI + 90
     rotate.set(dir.current === 1 ? heading : heading + 180)
   })
+
+  if (hidden) return null
 
   return (
     <div className="misionero-bg" aria-hidden="true">

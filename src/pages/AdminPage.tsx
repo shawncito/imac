@@ -3,16 +3,18 @@ import { AnimatePresence, motion } from 'motion/react'
 import {
   Plus, Trash2, ChevronUp, ChevronDown, Save, LogOut, Check,
   Loader2, Lock, Clock, CalendarDays, Users, Settings as SettingsIcon,
-  ExternalLink, Info, MapPin, Mic,
+  ExternalLink, Info, MapPin, Mic, MessageSquareQuote, EyeOff, Eye,
 } from 'lucide-react'
-import { getConfig, setConfig, uploadImage } from '../lib/supabase'
+import {
+  supabase, getConfig, setConfig, uploadImage,
+  getAllVerseSubmissions, hideSubmission, unhideSubmission, deleteSubmission, type VerseSubmission,
+} from '../lib/supabase'
 import {
   PROGRAMA_KEY, SEMINARIOS_KEY, SETTINGS_KEY,
   defaultPrograma, defaultSeminarios, defaultSettings,
   SEMINAR_ICON_KEYS, type DayBlock, type ProgramaEvent, type Seminar, type Settings,
 } from '../lib/appData'
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD as string
 const ACCENT = '#FF5A1F'
 
 // ─── primitives ──────────────────────────────────────────────────────────────
@@ -442,18 +444,147 @@ function AjustesEditor({ value, onChange }: { value: Settings; onChange: (s: Set
   )
 }
 
+// ─── Pizarra (moderación) ─────────────────────────────────────────────────────
+function PizarraEditor() {
+  const [subs, setSubs] = useState<VerseSubmission[]>([])
+  const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
+
+  const load = async () => {
+    setLoading(true)
+    setSubs(await getAllVerseSubmissions())
+    setLoading(false)
+  }
+  useEffect(() => { load() }, [])
+
+  async function toggleHide(id: string, currently: boolean) {
+    setBusy(id)
+    if (currently) {
+      await unhideSubmission(id)
+      setSubs(prev => prev.map(s => s.id === id ? { ...s, hidden: false } : s))
+    } else {
+      await hideSubmission(id)
+      setSubs(prev => prev.map(s => s.id === id ? { ...s, hidden: true } : s))
+    }
+    setBusy(null)
+  }
+
+  async function remove(id: string) {
+    setBusy(id)
+    await deleteSubmission(id)
+    setSubs(prev => prev.filter(s => s.id !== id))
+    setBusy(null)
+    setConfirmDelete(null)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="w-5 h-5 animate-spin" style={{ color: ACCENT }} />
+        <p className="text-[12px] text-black/35">Cargando pizarra…</p>
+      </div>
+    )
+  }
+
+  const filtered = query.trim()
+    ? subs.filter(s =>
+        s.signer_name.toLowerCase().includes(query.toLowerCase()) ||
+        s.verse_reference.toLowerCase().includes(query.toLowerCase())
+      )
+    : subs
+
+  return (
+    <div className="flex flex-col gap-3">
+      <SectionInfo>
+        Versículos que la gente comparte en Inicio. Si algo es inapropiado, toca <strong>Ocultar</strong> — desaparece para todos al instante.
+      </SectionInfo>
+
+      <div className="relative">
+        <input
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Buscar por nombre o referencia…"
+          className="w-full border border-black/[0.12] rounded-xl px-4 py-2.5 text-[13.5px] text-black/80 bg-white outline-none focus:border-black/25 placeholder:text-black/30"
+        />
+        {query && (
+          <button onClick={() => setQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-black/30 text-lg leading-none">×</button>
+        )}
+      </div>
+
+      {filtered.length === 0 && (
+        <p className="text-[13px] text-black/35 text-center py-10">{query ? 'Sin resultados.' : 'Aún no hay versículos compartidos.'}</p>
+      )}
+
+      {filtered.map(s => (
+        <div key={s.id}
+          className="bg-white rounded-2xl border border-black/[0.07] shadow-sm p-4 flex flex-col gap-2"
+          style={{ opacity: s.hidden ? 0.5 : 1 }}>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-bold tracking-widest uppercase" style={{ color: ACCENT }}>
+              {s.verse_reference}
+            </span>
+            <span className="text-[11px] text-black/35">
+              {new Date(s.created_at).toLocaleString('es', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+          <p className="text-[14px] leading-snug text-[#14110b]" style={{ fontFamily: 'var(--serif)' }}>
+            {s.verse_text}
+          </p>
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <span className="text-[12.5px] font-semibold text-black/55">— {s.signer_name}</span>
+            <div className="flex items-center gap-2">
+              <button onClick={() => toggleHide(s.id, s.hidden)} disabled={busy === s.id}
+                className={`text-[12px] font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg active:scale-95 ${s.hidden ? 'text-black/40 bg-black/5' : 'text-orange-500 bg-orange-500/10'}`}>
+                {busy === s.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {s.hidden ? 'Mostrar' : 'Ocultar'}
+              </button>
+              {confirmDelete === s.id ? (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11.5px] font-semibold text-red-600">¿Borrar?</span>
+                  <button onClick={() => remove(s.id)} disabled={busy === s.id}
+                    className="text-[12px] font-bold px-3 py-1.5 rounded-lg text-white bg-red-600 active:scale-95">
+                    {busy === s.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Sí'}
+                  </button>
+                  <button onClick={() => setConfirmDelete(null)}
+                    className="text-[12px] font-bold px-3 py-1.5 rounded-lg text-black/40 bg-black/5 active:scale-95">
+                    No
+                  </button>
+                </div>
+              ) : (
+              <button onClick={() => setConfirmDelete(s.id)} disabled={busy === s.id}
+                className="text-[12px] font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-red-600 bg-red-600/10 active:scale-95">
+                {busy === s.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                Borrar
+              </button>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── Admin tabs config ────────────────────────────────────────────────────────
-type AdminTab = 'programa' | 'seminarios' | 'ajustes'
+type AdminTab = 'programa' | 'seminarios' | 'ajustes' | 'pizarra'
 const ADMIN_TABS: { id: AdminTab; label: string; Icon: React.ElementType }[] = [
   { id: 'programa',   label: 'Programa',   Icon: CalendarDays },
   { id: 'seminarios', label: 'Seminarios', Icon: Users },
+  { id: 'pizarra',    label: 'Pizarra',    Icon: MessageSquareQuote },
   { id: 'ajustes',    label: 'Ajustes',    Icon: SettingsIcon },
 ]
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function AdminPage() {
   const [authed, setAuthed]     = useState(false)
+  const [authReady, setAuthReady] = useState(false)
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
+  const [loggingIn, setLoggingIn] = useState(false)
+  const [showPw, setShowPw]     = useState(false)
   const [error, setError]       = useState('')
   const [tab, setTab]           = useState<AdminTab>('programa')
   const [prevTab, setPrevTab]   = useState<AdminTab>('programa')
@@ -463,6 +594,18 @@ export default function AdminPage() {
   const [loading, setLoading]   = useState(false)
   const [saving, setSaving]     = useState(false)
   const [saved, setSaved]       = useState(false)
+
+  // Restore session on mount and react to auth changes (login/logout/refresh).
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setAuthed(!!data.session)
+      setAuthReady(true)
+    })
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setAuthed(!!session)
+    })
+    return () => { sub.subscription.unsubscribe() }
+  }, [])
 
   useEffect(() => {
     if (!authed) return
@@ -479,10 +622,22 @@ export default function AdminPage() {
     })
   }, [authed])
 
-  function login(e: React.FormEvent) {
+  async function login(e: React.FormEvent) {
     e.preventDefault()
-    if (password === ADMIN_PASSWORD) { setAuthed(true); setError('') }
-    else setError('Contraseña incorrecta')
+    if (loggingIn) return
+    setLoggingIn(true)
+    const { error: authErr } = await supabase.auth.signInWithPassword({
+      email: email.trim(), password,
+    })
+    setLoggingIn(false)
+    if (authErr) { setError('Credenciales incorrectas'); return }
+    setError(''); setPassword('')
+    // authed flips via onAuthStateChange
+  }
+
+  async function logout() {
+    await supabase.auth.signOut()
+    window.location.hash = ''
   }
 
   async function save() {
@@ -501,6 +656,11 @@ export default function AdminPage() {
   function goTab(t: AdminTab) { setPrevTab(tab); setTab(t) }
   const dir = ADMIN_TABS.findIndex(x => x.id === tab) > ADMIN_TABS.findIndex(x => x.id === prevTab) ? 1 : -1
 
+  // Avoid login-flash while the session is being restored.
+  if (!authReady) {
+    return <div className="min-h-dvh" style={{ background: '#080e22' }} />
+  }
+
   // ── Login screen ──────────────────────────────────────────────────────────
   if (!authed) {
     return (
@@ -516,16 +676,29 @@ export default function AdminPage() {
             <p className="text-white/35 text-[13px] mt-1">Festival de Misiones 2026</p>
           </div>
           <form onSubmit={login} className="flex flex-col gap-3">
-            <input type="password" value={password} autoFocus placeholder="Contraseña"
-              onChange={e => { setPassword(e.target.value); setError('') }}
+            <input type="email" value={email} autoFocus placeholder="Correo" autoComplete="username"
+              onChange={e => { setEmail(e.target.value); setError('') }}
               className="bg-white/[0.08] border border-white/[0.10] rounded-2xl px-4 py-3.5 text-white placeholder:text-white/20 text-[15px] focus:outline-none"
               style={{ boxShadow: error ? '0 0 0 2px rgba(239,68,68,0.4)' : undefined }} />
+            <div className="relative">
+              <input type={showPw ? 'text' : 'password'} value={password} placeholder="Contraseña" autoComplete="current-password"
+                onChange={e => { setPassword(e.target.value); setError('') }}
+                className="w-full bg-white/[0.08] border border-white/[0.10] rounded-2xl px-4 py-3.5 pr-12 text-white placeholder:text-white/20 text-[15px] focus:outline-none"
+                style={{ boxShadow: error ? '0 0 0 2px rgba(239,68,68,0.4)' : undefined }} />
+              <button type="button" onClick={() => setShowPw(v => !v)} tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/35 hover:text-white/70"
+                aria-label={showPw ? 'Ocultar contraseña' : 'Ver contraseña'}>
+                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
             <AnimatePresence>
               {error && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                 className="text-red-400 text-[13px] text-center">{error}</motion.p>}
             </AnimatePresence>
-            <button type="submit" className="font-bold text-[15px] rounded-2xl py-3.5 text-white active:scale-[0.98]"
+            <button type="submit" disabled={loggingIn}
+              className="font-bold text-[15px] rounded-2xl py-3.5 text-white active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
               style={{ background: ACCENT, boxShadow: `0 4px 20px ${ACCENT}40` }}>
+              {loggingIn && <Loader2 className="w-4 h-4 animate-spin" />}
               Entrar
             </button>
           </form>
@@ -551,7 +724,7 @@ export default function AdminPage() {
               <ExternalLink className="w-3.5 h-3.5" /> Ver app
             </a>
             <div className="w-px h-4 bg-white/10" />
-            <button onClick={() => { setAuthed(false); window.location.hash = '' }}
+            <button onClick={logout}
               className="flex items-center gap-1.5 text-white/35 hover:text-white/60 text-[12px]">
               <LogOut className="w-3.5 h-3.5" /> Salir
             </button>
@@ -588,6 +761,7 @@ export default function AdminPage() {
               exit={{ x: dir * -30, opacity: 0 }} transition={{ duration: 0.2 }}>
               {tab === 'programa'   && <ProgramaEditor data={programa} onChange={setPrograma} />}
               {tab === 'seminarios' && <SeminariosEditor data={seminarios} onChange={setSeminarios} />}
+              {tab === 'pizarra'    && <PizarraEditor />}
               {tab === 'ajustes'    && <AjustesEditor value={settings} onChange={setSettings} />}
             </motion.div>
           </AnimatePresence>
