@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useScroll, useMotionValueEvent } from 'motion/react'
 import { flightProgress } from '../lib/flightProgress'
 import { useSpeech } from '../hooks/useSpeech'
@@ -9,7 +9,6 @@ import misiones2026 from '../assets/misiones2026.jpeg'
 const ACCENT = '#FF5A1F'
 const TARGET = new Date('2026-06-26T19:30:00')
 
-const VERSE_TEXT = 'No me escogieron ustedes a mí, sino que yo los escogí a ustedes y los comisioné para que vayan y den fruto, un fruto que perdure.'
 
 type Props = {
   onGoToMisiones: () => void
@@ -19,7 +18,7 @@ type Props = {
 export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
   const [remaining, setRemaining] = useState(() => Math.max(0, TARGET.getTime() - Date.now()))
   const containerRef = useRef<HTMLDivElement>(null)
-  const { speak, isPlaying } = useSpeech()
+  const { isPlaying } = useSpeech()
 
   const { scrollYProgress } = useScroll({ container: containerRef })
   useMotionValueEvent(scrollYProgress, 'change', v => flightProgress.set(v))
@@ -39,10 +38,6 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
   const h = String(Math.floor((remaining % 86400000) / 3600000)).padStart(2, '0')
   const m = String(Math.floor((remaining % 3600000) / 60000)).padStart(2, '0')
   const s = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0')
-
-  const handleSpeak = useCallback(() => {
-    speak(VERSE_TEXT, 'es-CL', 'Juan 15:16. ')
-  }, [speak])
 
   return (
     <div ref={containerRef} className="tab-scroll" style={{ paddingLeft: 0, paddingRight: 0, paddingTop: 0 }}>
