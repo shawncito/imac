@@ -217,34 +217,41 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
         </div>
         */}
 
-        {/* Instagram — pill centrada */}
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '4px 0 8px' }}>
-          <a
-            href="https://www.instagram.com/sva_unadeca?igsh=MW9pNTNuOTA4eWFmMg=="
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 10,
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.13)',
-              borderRadius: 100, padding: '10px 18px 10px 12px',
-              textDecoration: 'none', color: '#F4F1EB',
-            }}
-          >
-            <div style={{
-              width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-              background: 'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',
-              display: 'grid', placeItems: 'center',
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        {/* Instagram — barra lateral con texto */}
+        <a
+          href="https://www.instagram.com/sva_unadeca?igsh=MW9pNTNuOTA4eWFmMg=="
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'flex', gap: 16, textDecoration: 'none', color: '#F4F1EB',
+            padding: '6px 0 8px',
+          }}
+        >
+          <div style={{
+            width: 4, borderRadius: 4, flexShrink: 0, alignSelf: 'stretch',
+            background: 'linear-gradient(to bottom,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',
+          }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="url(#ig-grad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <defs>
+                  <linearGradient id="ig-grad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#f09433"/>
+                    <stop offset="100%" stopColor="#bc1888"/>
+                  </linearGradient>
+                </defs>
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                 <circle cx="12" cy="12" r="4" />
-                <circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none" />
+                <circle cx="17.5" cy="6.5" r="1" fill="#bc1888" stroke="none" />
               </svg>
+              <span style={{ fontSize: 13.5, fontWeight: 700 }}>@sva_unadeca</span>
             </div>
-            <span style={{ fontSize: 14, fontWeight: 600 }}>@sva_unadeca</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}><path d="m9 6 6 6-6 6" /></svg>
-          </a>
-        </div>
+            <p style={{ fontSize: 12.5, lineHeight: 1.55, color: 'rgba(244,241,235,0.55)', margin: 0 }}>
+              Mantente al día con todas las novedades del Servicio Voluntario Adventista UNADECA.
+            </p>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, flexShrink: 0, marginTop: 2 }}><path d="m9 6 6 6-6 6" /></svg>
+        </a>
 
       </div>
     </div>
