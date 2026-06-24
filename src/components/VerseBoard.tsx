@@ -69,7 +69,7 @@ export default function VerseBoard() {
   // Auto-rotate every 8s
   useEffect(() => {
     if (subs.length <= 1) return
-    const id = setInterval(() => setActiveIdx(i => (i + 1) % subs.length), 8000)
+    const id = setInterval(() => setActiveIdx(i => (i + 1) % subs.length), 20000)
     return () => clearInterval(id)
   }, [subs.length])
 
@@ -176,7 +176,7 @@ export default function VerseBoard() {
           Sé el primero en compartir un versículo
         </div>
       ) : (
-        <div style={{ marginBottom: 10 }}>
+        <div style={{ marginBottom: 10, position: 'relative', paddingLeft: 22, paddingRight: 22 }}>
           {/* Stack area */}
           <div
             onClick={() => setActiveIdx(i => (i + 1) % subs.length)}
@@ -280,16 +280,17 @@ export default function VerseBoard() {
                 </motion.div>
               )
             })}
+            {/* Side buttons — dentro del stack para estar en el mismo stacking context */}
+            <button onClick={e => { e.stopPropagation(); setActiveIdx(i => (i - 1 + subs.length) % subs.length) }}
+              style={{ position: 'absolute', left: -22, top: '45%', transform: 'translateY(-50%)', zIndex: 9999,
+                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', color: '#F4F1EB',
+                width: 34, height: 34, borderRadius: '50%', cursor: 'pointer', fontSize: 15, display: 'grid', placeItems: 'center' }}>←</button>
+            <button onClick={e => { e.stopPropagation(); setActiveIdx(i => (i + 1) % subs.length) }}
+              style={{ position: 'absolute', right: -22, top: '45%', transform: 'translateY(-50%)', zIndex: 9999,
+                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', color: '#F4F1EB',
+                width: 34, height: 34, borderRadius: '50%', cursor: 'pointer', fontSize: 15, display: 'grid', placeItems: 'center' }}>→</button>
           </div>
-          {/* Controls */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18 }}>
-            <button onClick={() => setActiveIdx(i => (i - 1 + subs.length) % subs.length)}
-              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', color: '#F4F1EB', width: 38, height: 38, borderRadius: '50%', cursor: 'pointer', fontSize: 16, display: 'grid', placeItems: 'center' }}>←</button>
-            <span style={{ fontSize: 12.5, color: 'rgba(244,241,235,0.45)', minWidth: 48, textAlign: 'center' }}>{activeIdx + 1} / {subs.length}</span>
-            <button onClick={() => setActiveIdx(i => (i + 1) % subs.length)}
-              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', color: '#F4F1EB', width: 38, height: 38, borderRadius: '50%', cursor: 'pointer', fontSize: 16, display: 'grid', placeItems: 'center' }}>→</button>
-          </div>
-          <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(244,241,235,0.28)', letterSpacing: 0.5, marginTop: 8, marginBottom: 0 }}>Toca para ver más versículos</p>
+          <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(244,241,235,0.28)', letterSpacing: 0.5, marginTop: 8, marginBottom: 0 }}>{activeIdx + 1} / {subs.length}</p>
         </div>
       )}
 
@@ -313,7 +314,7 @@ export default function VerseBoard() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           }}
         >
-          ✦ Compartir mi versículo
+           Compartir mi versículo
         </button>
       ) : (
         <div style={{

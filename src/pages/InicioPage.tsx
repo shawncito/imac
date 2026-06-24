@@ -91,8 +91,11 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
           </span>
         </div>
 
+        {/* Pizarra compartida de versículos */}
+        <VerseBoard />
+
         {/* Section label */}
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: '#5b5a60', marginBottom: 13 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: ACCENT, marginBottom: 13 }}>
           Escalas del festival
         </div>
 
@@ -110,9 +113,12 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
             </div>
             <img src={logoHand} alt="Maranatha" style={{ height: 50, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 12 }} />
           </div>
-          <p style={{ fontSize: 13.5, lineHeight: 1.65, color: 'rgba(244,241,235,0.68)', margin: 0 }}>
-            El Servicio Voluntario Adventista es el ministerio joven de la UNADECA dedicado a llevar el evangelio a través de la acción misionera. Aquí jóvenes comprometidos sirven, crecen y son enviados al mundo.
-          </p>
+          <div style={{ fontSize: 13.5, lineHeight: 1.65, color: 'rgba(244,241,235,0.68)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <p style={{ margin: 0 }}>El Servicio Voluntario Adventista (SVA), conocido internacionalmente como <em>Adventist Volunteer Service</em> (AVS), es un programa oficial de la Iglesia Adventista del Séptimo Día que brinda oportunidades para que personas de diferentes edades sirvan voluntariamente en proyectos misioneros, educativos, de salud, comunitarios y humanitarios alrededor del mundo.</p>
+            <p style={{ margin: 0 }}>El SVA funciona en más de 200 países y territorios donde la Iglesia Adventista tiene presencia. Los voluntarios pueden servir en: hospitales, escuelas y universidades, orfanatos, iglesias, centros comunitarios, clínicas, oficinas administrativas y proyectos de desarrollo y ayuda humanitaria.</p>
+            <p style={{ margin: 0 }}>El programa ofrece diferentes tipos de voluntariado: corto plazo (semanas a 3 meses), mediano plazo (3 meses a 1 año) y largo plazo (1 año o más).</p>
+            <p style={{ margin: 0 }}>Cada año, miles de voluntarios participan en proyectos que benefician a comunidades necesitadas, fortalecen instituciones adventistas y contribuyen a la misión de la iglesia mediante el servicio cristiano. El programa busca demostrar el evangelio a través de acciones concretas de amor, solidaridad y compromiso con el bienestar integral de las personas.</p>
+          </div>
         </div>
 
         {/* Compact rows */}
@@ -194,9 +200,6 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
           </div>
 
         </div>
-
-        {/* Pizarra compartida de versículos */}
-        <VerseBoard />
 
         {/* Instagram — barra lateral con texto */}
         <a
