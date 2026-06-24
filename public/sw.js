@@ -4,8 +4,11 @@
    - same-origin GET assets: stale-while-revalidate (cache as fetched)
    - Supabase / cross-origin API: never intercepted (always live)
 */
-const CACHE = 'mision-biblica-v1'
+const CACHE = 'mision-biblica-v2'
 const SHELL = '/index.html'
+
+// En desarrollo (localhost) el SW no debe cachear: rompe HMR y oculta cambios.
+const DEV = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1'
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.add(SHELL)).catch(() => {}))
@@ -13,17 +16,20 @@ self.addEventListener('install', (e) => {
 })
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    )
-  )
-  self.clients.claim()
+  e.waitUntil((async () => {
+    // Purga TODA cache vieja (incluye v1 con el bundle anterior).
+    const keys = await caches.keys()
+    await Promise.all(keys.filter((k) => k !== CACHE || DEV).map((k) => caches.delete(k)))
+    // En dev, auto-desregistrar para liberar la página por completo.
+    if (DEV) await self.registration.unregister()
+    await self.clients.claim()
+  })())
 })
 
 self.addEventListener('fetch', (e) => {
   const req = e.request
   if (req.method !== 'GET') return
+  if (DEV) return // dev: nunca interceptar, todo va a la red (Vite/HMR)
 
   const url = new URL(req.url)
   // Only handle our own origin; let Supabase + fonts go straight to network.

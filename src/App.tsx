@@ -83,7 +83,7 @@ export default function App() {
 
       {/* Pager */}
       <motion.div className="pager" onPanEnd={handleSwipe}>
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait">
           <motion.div
             key={tab}
             className="absolute inset-0 flex flex-col"
