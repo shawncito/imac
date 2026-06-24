@@ -384,13 +384,12 @@ export default function VerseBoard() {
                 className="vb-select"
               >
                 <option value="">Asociación / Unión *</option>
-                <option value="Norte">Asociación Norte</option>
-                <option value="Central">Asociación Central</option>
-                <option value="Sur">Asociación Sur</option>
-                <option value="Caribe">Asociación Caribe</option>
-                <option value="UNADECA">UNADECA (Unión CR)</option>
-                <option value="Unión Guate">Unión Guatemalteca</option>
-                <option value="Otros">Otros</option>
+                <option value="Asociación Norte de Costa Rica">Asociación Norte de Costa Rica</option>
+                <option value="Asociación Central Sur">Asociación Central Sur</option>
+                <option value="Misión Caribe">Misión Caribe</option>
+                <option value="Unión de Guatemala">Unión de Guatemala</option>
+                <option value="UNADECA">UNADECA</option>
+                <option value="Otro">Otro</option>
               </select>
             </>
           )}

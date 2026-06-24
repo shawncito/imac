@@ -83,7 +83,7 @@ begin
 
   -- Region: solo valores de la lista del formulario
   if p_region is not null and p_region not in
-     ('Norte','Central','Sur','Caribe','UNADECA','Unión Guate','Otros') then
+     ('Asociación Norte de Costa Rica','Asociación Central Sur','Misión Caribe','Unión de Guatemala','UNADECA','Otro') then
     raise exception 'REGION_INVALID';
   end if;
 
