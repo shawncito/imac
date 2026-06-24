@@ -425,6 +425,10 @@ body {
 /* ===== wave bars (VOZ playing) ===== */
 @keyframes wave { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
 
+/* ===== Pizarra carousel ===== */
+.vb-carousel::-webkit-scrollbar { display: none; }
+.vb-select option { background: #141228; color: #F4F1EB; }
+
 /* ===== Misión Amanecer card tap affordance ===== */
 .ini-mision-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
 .ini-mision-card:active { transform: scale(0.975); }

@@ -49,3 +49,107 @@ export async function uploadImage(file: File, path: string): Promise<string> {
   const { data: urlData } = supabase.storage.from('imagenes').getPublicUrl(cleanPath)
   return urlData.publicUrl
 }
+
+// ─── Verse board (Pizarra) ─────────────────────────────────────────────────────
+export type VerseSubmission = {
+  id: string
+  verse_reference: string
+  verse_text: string
+  signer_name: string
+  device_id: string
+  hidden: boolean
+  likes: number
+  region: string | null
+  created_at: string
+}
+
+/** Public feed — newest first, hidden excluded. */
+export async function getVerseSubmissions(limit = 40): Promise<VerseSubmission[]> {
+  const { data, error } = await supabase
+    .from('verse_submissions')
+    .select('*')
+    .eq('hidden', false)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error || !data) return []
+  return data as VerseSubmission[]
+}
+
+/** Admin feed — includes hidden. */
+export async function getAllVerseSubmissions(limit = 200): Promise<VerseSubmission[]> {
+  const { data, error } = await supabase
+    .from('verse_submissions')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error || !data) return []
+  return data as VerseSubmission[]
+}
+
+export type SubmitResult =
+  | { ok: true; row: VerseSubmission }
+  | { ok: false; reason: 'RATE_LIMIT' | 'PROFANITY' | 'NAME_FORMAT' | 'ERROR' }
+
+/** Insert via the validated `submit_verse` RPC (server enforces all rules). */
+export async function submitVerse(input: {
+  verseReference: string; verseText: string; signerName: string; deviceId: string; region?: string
+}): Promise<SubmitResult> {
+  const { data, error } = await supabase.rpc('submit_verse', {
+    p_reference: input.verseReference,
+    p_text: input.verseText,
+    p_name: input.signerName,
+    p_device: input.deviceId,
+    p_region: input.region ?? null,
+  })
+  if (error) {
+    const m = error.message || ''
+    if (m.includes('RATE_LIMIT')) return { ok: false, reason: 'RATE_LIMIT' }
+    if (m.includes('PROFANITY')) return { ok: false, reason: 'PROFANITY' }
+    if (m.includes('NAME_FORMAT')) return { ok: false, reason: 'NAME_FORMAT' }
+    return { ok: false, reason: 'ERROR' }
+  }
+  // rpc returns the inserted row (object, or single-element array depending on PostgREST)
+  const row = (Array.isArray(data) ? data[0] : data) as VerseSubmission
+  return { ok: true, row }
+}
+
+/** Increment likes on a submission. */
+export async function likeVerse(id: string): Promise<void> {
+  await supabase.rpc('like_verse', { p_id: id })
+}
+
+/** Decrement likes on a submission. */
+export async function unlikeVerse(id: string): Promise<void> {
+  await supabase.rpc('unlike_verse', { p_id: id })
+}
+
+/** Admin soft-delete via SECURITY DEFINER RPC (bypasses RLS). */
+export async function hideSubmission(id: string): Promise<void> {
+  const { error } = await supabase.rpc('hide_verse', { p_id: id })
+  if (error) throw new Error(error.message)
+}
+
+/** Admin un-hide. */
+export async function unhideSubmission(id: string): Promise<void> {
+  const { error } = await supabase.rpc('unhide_verse', { p_id: id })
+  if (error) throw new Error(error.message)
+}
+
+/** Admin hard-delete via SECURITY DEFINER RPC (bypasses RLS). */
+export async function deleteSubmission(id: string): Promise<void> {
+  const { error } = await supabase.rpc('delete_verse', { p_id: id })
+  if (error) throw new Error(error.message)
+}
+
+/** Timestamp (ms) of this device's last submission, or 0. Used for the UX gate. */
+export async function getDeviceLastSubmit(deviceId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from('verse_submissions')
+    .select('created_at')
+    .eq('device_id', deviceId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (error || !data) return 0
+  return new Date((data as { created_at: string }).created_at).getTime()
+}
