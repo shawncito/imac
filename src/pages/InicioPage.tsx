@@ -217,24 +217,34 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
         </div>
         */}
 
-        {/* Instagram — editorial */}
-        <a
-          href="https://www.instagram.com/sva_unadeca?igsh=MW9pNTNuOTA4eWFmMg=="
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: 'block', textDecoration: 'none', color: '#F4F1EB', padding: '4px 0 8px' }}
-        >
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', marginBottom: 18 }} />
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'rgba(244,241,235,0.4)', marginBottom: 6 }}>Redes sociales</div>
-              <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 400, letterSpacing: -0.3, lineHeight: 1 }}>@sva_unadeca</div>
-              <div style={{ fontSize: 12.5, color: 'rgba(244,241,235,0.5)', marginTop: 5 }}>Síguenos en Instagram</div>
+        {/* Instagram — pill centrada */}
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '4px 0 8px' }}>
+          <a
+            href="https://www.instagram.com/sva_unadeca?igsh=MW9pNTNuOTA4eWFmMg=="
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 10,
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.13)',
+              borderRadius: 100, padding: '10px 18px 10px 12px',
+              textDecoration: 'none', color: '#F4F1EB',
+            }}
+          >
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+              background: 'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',
+              display: 'grid', placeItems: 'center',
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none" />
+              </svg>
             </div>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.35, flexShrink: 0, marginBottom: 4 }}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          </div>
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', marginTop: 18 }} />
-        </a>
+            <span style={{ fontSize: 14, fontWeight: 600 }}>@sva_unadeca</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}><path d="m9 6 6 6-6 6" /></svg>
+          </a>
+        </div>
 
       </div>
     </div>
