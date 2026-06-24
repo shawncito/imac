@@ -176,7 +176,7 @@ export default function VerseBoard() {
           Sé el primero en compartir un versículo
         </div>
       ) : (
-        <div style={{ marginBottom: 10, position: 'relative', paddingLeft: 22, paddingRight: 22 }}>
+        <div style={{ marginBottom: 10, position: 'relative', paddingLeft: 30, paddingRight: 30 }}>
           {/* Stack area */}
           <div
             onClick={() => setActiveIdx(i => (i + 1) % subs.length)}
@@ -282,11 +282,11 @@ export default function VerseBoard() {
             })}
             {/* Side buttons — dentro del stack para estar en el mismo stacking context */}
             <button onClick={e => { e.stopPropagation(); setActiveIdx(i => (i - 1 + subs.length) % subs.length) }}
-              style={{ position: 'absolute', left: -22, top: '45%', transform: 'translateY(-50%)', zIndex: 9999,
+              style={{ position: 'absolute', left: -30, top: '45%', transform: 'translateY(-50%)', zIndex: 9999,
                 background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', color: '#F4F1EB',
                 width: 34, height: 34, borderRadius: '50%', cursor: 'pointer', fontSize: 15, display: 'grid', placeItems: 'center' }}>←</button>
             <button onClick={e => { e.stopPropagation(); setActiveIdx(i => (i + 1) % subs.length) }}
-              style={{ position: 'absolute', right: -22, top: '45%', transform: 'translateY(-50%)', zIndex: 9999,
+              style={{ position: 'absolute', right: -30, top: '45%', transform: 'translateY(-50%)', zIndex: 9999,
                 background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', color: '#F4F1EB',
                 width: 34, height: 34, borderRadius: '50%', cursor: 'pointer', fontSize: 15, display: 'grid', placeItems: 'center' }}>→</button>
           </div>
