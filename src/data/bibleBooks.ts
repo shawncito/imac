@@ -75,6 +75,18 @@ const RV1960 = 'RV1960'
 
 export type FetchedVerse = { reference: string; text: string }
 
+/** Fetch verse count for a chapter from bolls.life. */
+export async function fetchVerseCount(book: BibleBook, chapter: number): Promise<number> {
+  try {
+    const res = await fetch(`https://bolls.life/get-text/${RV1960}/${book.n}/${chapter}/`)
+    if (!res.ok) return 30
+    const data = await res.json() as { verse: number }[]
+    return data.length || 30
+  } catch {
+    return 30
+  }
+}
+
 /** Fetch a single verse (RVR1960) from bolls.life. Returns null if not found. */
 export async function fetchVerse(book: BibleBook, chapter: number, verse: number): Promise<FetchedVerse | null> {
   const url = `https://bolls.life/get-verse/${RV1960}/${book.n}/${chapter}/${verse}/`

@@ -4,9 +4,44 @@
 // Blocklist must stay in sync with the v_block array in the SQL function.
 // Stored already-normalized (no accents, lowercase).
 const BLOCKLIST = [
-  'puta', 'puto', 'mierda', 'verga', 'pendejo', 'cabron', 'culero', 'chinga',
-  'cono', 'joder', 'polla', 'marica', 'maricon', 'zorra', 'perra', 'pinche',
-  'fuck', 'shit', 'bitch', 'asshole', 'dick', 'pussy', 'cunt', 'whore', 'nigger',
+  // Español — base
+  'puta', 'puto', 'puton', 'putona',
+  'mierda', 'mierd',
+  'verga', 'vergon',
+  'pendejo', 'pendeja',
+  'cabron', 'cabrona',
+  'culero', 'culera', 'culo', 'culon', 'culona',
+  'chinga', 'chingo', 'chingon',
+  'cono',
+  'joder',
+  'polla',
+  'marica', 'maricon',
+  'zorra', 'zorras',
+  'perra', 'perras',
+  'pinche',
+  'caca',
+  'ojete',
+  'mamon', 'mamona',
+  'huevon', 'huevona', 'hueva',
+  'guey', 'wey', 'webon',
+  'cojon', 'cojones',
+  'idiota',
+  'imbecil',
+  'estupido', 'estupida',
+  'pedo',
+  // Inglés
+  'fuck', 'fucker', 'fucking',
+  'shit',
+  'bitch',
+  'asshole', 'ass',
+  'dick',
+  'pussy',
+  'cunt',
+  'whore',
+  'nigger', 'nigga',
+  'bastard',
+  'damn',
+  'crap',
 ]
 
 const LEET: Record<string, string> = {

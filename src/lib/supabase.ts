@@ -58,6 +58,8 @@ export type VerseSubmission = {
   signer_name: string
   device_id: string
   hidden: boolean
+  likes: number
+  region: string | null
   created_at: string
 }
 
@@ -90,13 +92,14 @@ export type SubmitResult =
 
 /** Insert via the validated `submit_verse` RPC (server enforces all rules). */
 export async function submitVerse(input: {
-  verseReference: string; verseText: string; signerName: string; deviceId: string
+  verseReference: string; verseText: string; signerName: string; deviceId: string; region?: string
 }): Promise<SubmitResult> {
   const { data, error } = await supabase.rpc('submit_verse', {
     p_reference: input.verseReference,
     p_text: input.verseText,
     p_name: input.signerName,
     p_device: input.deviceId,
+    p_region: input.region ?? null,
   })
   if (error) {
     const m = error.message || ''
@@ -110,9 +113,32 @@ export async function submitVerse(input: {
   return { ok: true, row }
 }
 
-/** Admin soft-delete. */
+/** Increment likes on a submission. */
+export async function likeVerse(id: string): Promise<void> {
+  await supabase.rpc('like_verse', { p_id: id })
+}
+
+/** Decrement likes on a submission. */
+export async function unlikeVerse(id: string): Promise<void> {
+  await supabase.rpc('unlike_verse', { p_id: id })
+}
+
+/** Admin soft-delete via SECURITY DEFINER RPC (bypasses RLS). */
 export async function hideSubmission(id: string): Promise<void> {
-  await supabase.from('verse_submissions').update({ hidden: true }).eq('id', id)
+  const { error } = await supabase.rpc('hide_verse', { p_id: id })
+  if (error) throw new Error(error.message)
+}
+
+/** Admin un-hide. */
+export async function unhideSubmission(id: string): Promise<void> {
+  const { error } = await supabase.rpc('unhide_verse', { p_id: id })
+  if (error) throw new Error(error.message)
+}
+
+/** Admin hard-delete via SECURITY DEFINER RPC (bypasses RLS). */
+export async function deleteSubmission(id: string): Promise<void> {
+  const { error } = await supabase.rpc('delete_verse', { p_id: id })
+  if (error) throw new Error(error.message)
 }
 
 /** Timestamp (ms) of this device's last submission, or 0. Used for the UX gate. */

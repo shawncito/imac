@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import {
   getConfig, setConfig, uploadImage,
-  getAllVerseSubmissions, hideSubmission, type VerseSubmission,
+  getAllVerseSubmissions, hideSubmission, unhideSubmission, deleteSubmission, type VerseSubmission,
 } from '../lib/supabase'
 import {
   PROGRAMA_KEY, SEMINARIOS_KEY, SETTINGS_KEY,
@@ -450,6 +450,8 @@ function PizarraEditor() {
   const [subs, setSubs] = useState<VerseSubmission[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
 
   const load = async () => {
     setLoading(true)
@@ -458,11 +460,24 @@ function PizarraEditor() {
   }
   useEffect(() => { load() }, [])
 
-  async function hide(id: string) {
+  async function toggleHide(id: string, currently: boolean) {
     setBusy(id)
-    await hideSubmission(id)
-    setSubs(prev => prev.map(s => s.id === id ? { ...s, hidden: true } : s))
+    if (currently) {
+      await unhideSubmission(id)
+      setSubs(prev => prev.map(s => s.id === id ? { ...s, hidden: false } : s))
+    } else {
+      await hideSubmission(id)
+      setSubs(prev => prev.map(s => s.id === id ? { ...s, hidden: true } : s))
+    }
     setBusy(null)
+  }
+
+  async function remove(id: string) {
+    setBusy(id)
+    await deleteSubmission(id)
+    setSubs(prev => prev.filter(s => s.id !== id))
+    setBusy(null)
+    setConfirmDelete(null)
   }
 
   if (loading) {
@@ -474,17 +489,37 @@ function PizarraEditor() {
     )
   }
 
+  const filtered = query.trim()
+    ? subs.filter(s =>
+        s.signer_name.toLowerCase().includes(query.toLowerCase()) ||
+        s.verse_reference.toLowerCase().includes(query.toLowerCase())
+      )
+    : subs
+
   return (
     <div className="flex flex-col gap-3">
       <SectionInfo>
         Versículos que la gente comparte en Inicio. Si algo es inapropiado, toca <strong>Ocultar</strong> — desaparece para todos al instante.
       </SectionInfo>
 
-      {subs.length === 0 && (
-        <p className="text-[13px] text-black/35 text-center py-10">Aún no hay versículos compartidos.</p>
+      <div className="relative">
+        <input
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Buscar por nombre o referencia…"
+          className="w-full border border-black/[0.12] rounded-xl px-4 py-2.5 text-[13.5px] text-black/80 bg-white outline-none focus:border-black/25 placeholder:text-black/30"
+        />
+        {query && (
+          <button onClick={() => setQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-black/30 text-lg leading-none">×</button>
+        )}
+      </div>
+
+      {filtered.length === 0 && (
+        <p className="text-[13px] text-black/35 text-center py-10">{query ? 'Sin resultados.' : 'Aún no hay versículos compartidos.'}</p>
       )}
 
-      {subs.map(s => (
+      {filtered.map(s => (
         <div key={s.id}
           className="bg-white rounded-2xl border border-black/[0.07] shadow-sm p-4 flex flex-col gap-2"
           style={{ opacity: s.hidden ? 0.5 : 1 }}>
@@ -501,17 +536,32 @@ function PizarraEditor() {
           </p>
           <div className="flex items-center justify-between gap-2 pt-1">
             <span className="text-[12.5px] font-semibold text-black/55">— {s.signer_name}</span>
-            {s.hidden ? (
-              <span className="text-[11px] font-semibold text-black/30 flex items-center gap-1">
-                <EyeOff className="w-3.5 h-3.5" /> Oculto
-              </span>
-            ) : (
-              <button onClick={() => hide(s.id)} disabled={busy === s.id}
-                className="text-[12px] font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-red-500 bg-red-500/10 active:scale-95">
+            <div className="flex items-center gap-2">
+              <button onClick={() => toggleHide(s.id, s.hidden)} disabled={busy === s.id}
+                className={`text-[12px] font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg active:scale-95 ${s.hidden ? 'text-black/40 bg-black/5' : 'text-orange-500 bg-orange-500/10'}`}>
                 {busy === s.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <EyeOff className="w-3.5 h-3.5" />}
-                Ocultar
+                {s.hidden ? 'Mostrar' : 'Ocultar'}
               </button>
-            )}
+              {confirmDelete === s.id ? (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11.5px] font-semibold text-red-600">¿Borrar?</span>
+                  <button onClick={() => remove(s.id)} disabled={busy === s.id}
+                    className="text-[12px] font-bold px-3 py-1.5 rounded-lg text-white bg-red-600 active:scale-95">
+                    {busy === s.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Sí'}
+                  </button>
+                  <button onClick={() => setConfirmDelete(null)}
+                    className="text-[12px] font-bold px-3 py-1.5 rounded-lg text-black/40 bg-black/5 active:scale-95">
+                    No
+                  </button>
+                </div>
+              ) : (
+              <button onClick={() => setConfirmDelete(s.id)} disabled={busy === s.id}
+                className="text-[12px] font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-red-600 bg-red-600/10 active:scale-95">
+                {busy === s.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                Borrar
+              </button>
+              )}
+            </div>
           </div>
         </div>
       ))}

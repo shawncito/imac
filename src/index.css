@@ -427,6 +427,7 @@ body {
 
 /* ===== Pizarra carousel ===== */
 .vb-carousel::-webkit-scrollbar { display: none; }
+.vb-select option { background: #141228; color: #F4F1EB; }
 
 /* ===== Misión Amanecer card tap affordance ===== */
 .ini-mision-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
