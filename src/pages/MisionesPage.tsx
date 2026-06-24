@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useMotionValueEvent } from 'motion/react'
-import { ChevronRight, ExternalLink, ArrowRight } from 'lucide-react'
+import { ChevronRight, ArrowRight } from 'lucide-react'
 import { flightProgress } from '../lib/flightProgress'
 
 const ACCENT = '#FF5A1F'
@@ -10,7 +10,6 @@ const GALLERY_2026: string[] = [1, 3, 5, 6, 7, 8, 9, 11, 12, 14].map(n =>
   `/2026/foto-${String(n).padStart(2, '0')}.jpg`
 )
 
-const INSTAGRAM_URL = 'https://www.instagram.com/sva_unadeca?igsh=MW9pNTNuOTA4eWFmMg=='
 
 // ─── Mission text paragraphs ─────────────────────────────────────────────────
 const PARAGRAPHS = [
@@ -70,7 +69,7 @@ function CardStack({ images }: { images: string[] }) {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-export default function MisionesPage({ onSpeakerTap }: { onSpeakerTap?: (i: number) => void }) {
+export default function MisionesPage({ onSpeakerTap: _onSpeakerTap }: { onSpeakerTap?: (i: number) => void }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })

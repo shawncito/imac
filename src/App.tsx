@@ -95,7 +95,7 @@ export default function App() {
             {tab === 'inicio'    && (
               <InicioPage
                 onGoToMisiones={() => go('misiones')}
-                onGoToSVA={() => go('actividad')}
+
                 onSpeakChange={setVoicePlaying}
               />
             )}

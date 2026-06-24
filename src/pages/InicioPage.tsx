@@ -13,11 +13,10 @@ const VERSE_TEXT = 'No me escogieron ustedes a mí, sino que yo los escogí a us
 
 type Props = {
   onGoToMisiones: () => void
-  onGoToSVA: () => void
   onSpeakChange?: (playing: boolean) => void
 }
 
-export default function InicioPage({ onGoToMisiones, onGoToSVA, onSpeakChange }: Props) {
+export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
   const [remaining, setRemaining] = useState(() => Math.max(0, TARGET.getTime() - Date.now()))
   const containerRef = useRef<HTMLDivElement>(null)
   const { speak, isPlaying } = useSpeech()
