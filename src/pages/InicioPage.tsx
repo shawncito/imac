@@ -87,6 +87,19 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
       <div style={{ position: 'relative', width: '100%', height: 296 }}>
         {/* placeholder: imagen/logo irá aquí */}
 
+        {/* Título del evento — anclado arriba */}
+        <motion.h1
+          style={{
+            position: 'absolute', top: 18, left: 0, right: 0, textAlign: 'center',
+            fontFamily: 'var(--serif)', fontSize: 32, fontWeight: 500, lineHeight: 1.05,
+            color: '#F4F1EB', margin: 0, padding: '0 24px', textShadow: '0 1px 12px rgba(0,0,0,0.55)',
+          }}
+          initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, ease: EASE }}
+        >
+          Festival de Misiones 2026
+        </motion.h1>
+
         <div style={{
           position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center',
