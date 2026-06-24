@@ -3,10 +3,10 @@ import { AnimatePresence, motion } from 'motion/react'
 import {
   Plus, Trash2, ChevronUp, ChevronDown, Save, LogOut, Check,
   Loader2, Lock, Clock, CalendarDays, Users, Settings as SettingsIcon,
-  ExternalLink, Info, MapPin, Mic, MessageSquareQuote, EyeOff,
+  ExternalLink, Info, MapPin, Mic, MessageSquareQuote, EyeOff, Eye,
 } from 'lucide-react'
 import {
-  getConfig, setConfig, uploadImage,
+  supabase, getConfig, setConfig, uploadImage,
   getAllVerseSubmissions, hideSubmission, unhideSubmission, deleteSubmission, type VerseSubmission,
 } from '../lib/supabase'
 import {
@@ -15,7 +15,6 @@ import {
   SEMINAR_ICON_KEYS, type DayBlock, type ProgramaEvent, type Seminar, type Settings,
 } from '../lib/appData'
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD as string
 const ACCENT = '#FF5A1F'
 
 // ─── primitives ──────────────────────────────────────────────────────────────
@@ -581,7 +580,11 @@ const ADMIN_TABS: { id: AdminTab; label: string; Icon: React.ElementType }[] = [
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function AdminPage() {
   const [authed, setAuthed]     = useState(false)
+  const [authReady, setAuthReady] = useState(false)
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
+  const [loggingIn, setLoggingIn] = useState(false)
+  const [showPw, setShowPw]     = useState(false)
   const [error, setError]       = useState('')
   const [tab, setTab]           = useState<AdminTab>('programa')
   const [prevTab, setPrevTab]   = useState<AdminTab>('programa')
@@ -591,6 +594,18 @@ export default function AdminPage() {
   const [loading, setLoading]   = useState(false)
   const [saving, setSaving]     = useState(false)
   const [saved, setSaved]       = useState(false)
+
+  // Restore session on mount and react to auth changes (login/logout/refresh).
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setAuthed(!!data.session)
+      setAuthReady(true)
+    })
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setAuthed(!!session)
+    })
+    return () => { sub.subscription.unsubscribe() }
+  }, [])
 
   useEffect(() => {
     if (!authed) return
@@ -607,10 +622,22 @@ export default function AdminPage() {
     })
   }, [authed])
 
-  function login(e: React.FormEvent) {
+  async function login(e: React.FormEvent) {
     e.preventDefault()
-    if (password === ADMIN_PASSWORD) { setAuthed(true); setError('') }
-    else setError('Contraseña incorrecta')
+    if (loggingIn) return
+    setLoggingIn(true)
+    const { error: authErr } = await supabase.auth.signInWithPassword({
+      email: email.trim(), password,
+    })
+    setLoggingIn(false)
+    if (authErr) { setError('Credenciales incorrectas'); return }
+    setError(''); setPassword('')
+    // authed flips via onAuthStateChange
+  }
+
+  async function logout() {
+    await supabase.auth.signOut()
+    window.location.hash = ''
   }
 
   async function save() {
@@ -629,6 +656,11 @@ export default function AdminPage() {
   function goTab(t: AdminTab) { setPrevTab(tab); setTab(t) }
   const dir = ADMIN_TABS.findIndex(x => x.id === tab) > ADMIN_TABS.findIndex(x => x.id === prevTab) ? 1 : -1
 
+  // Avoid login-flash while the session is being restored.
+  if (!authReady) {
+    return <div className="min-h-dvh" style={{ background: '#080e22' }} />
+  }
+
   // ── Login screen ──────────────────────────────────────────────────────────
   if (!authed) {
     return (
@@ -644,16 +676,29 @@ export default function AdminPage() {
             <p className="text-white/35 text-[13px] mt-1">Festival de Misiones 2026</p>
           </div>
           <form onSubmit={login} className="flex flex-col gap-3">
-            <input type="password" value={password} autoFocus placeholder="Contraseña"
-              onChange={e => { setPassword(e.target.value); setError('') }}
+            <input type="email" value={email} autoFocus placeholder="Correo" autoComplete="username"
+              onChange={e => { setEmail(e.target.value); setError('') }}
               className="bg-white/[0.08] border border-white/[0.10] rounded-2xl px-4 py-3.5 text-white placeholder:text-white/20 text-[15px] focus:outline-none"
               style={{ boxShadow: error ? '0 0 0 2px rgba(239,68,68,0.4)' : undefined }} />
+            <div className="relative">
+              <input type={showPw ? 'text' : 'password'} value={password} placeholder="Contraseña" autoComplete="current-password"
+                onChange={e => { setPassword(e.target.value); setError('') }}
+                className="w-full bg-white/[0.08] border border-white/[0.10] rounded-2xl px-4 py-3.5 pr-12 text-white placeholder:text-white/20 text-[15px] focus:outline-none"
+                style={{ boxShadow: error ? '0 0 0 2px rgba(239,68,68,0.4)' : undefined }} />
+              <button type="button" onClick={() => setShowPw(v => !v)} tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/35 hover:text-white/70"
+                aria-label={showPw ? 'Ocultar contraseña' : 'Ver contraseña'}>
+                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
             <AnimatePresence>
               {error && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                 className="text-red-400 text-[13px] text-center">{error}</motion.p>}
             </AnimatePresence>
-            <button type="submit" className="font-bold text-[15px] rounded-2xl py-3.5 text-white active:scale-[0.98]"
+            <button type="submit" disabled={loggingIn}
+              className="font-bold text-[15px] rounded-2xl py-3.5 text-white active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
               style={{ background: ACCENT, boxShadow: `0 4px 20px ${ACCENT}40` }}>
+              {loggingIn && <Loader2 className="w-4 h-4 animate-spin" />}
               Entrar
             </button>
           </form>
@@ -679,7 +724,7 @@ export default function AdminPage() {
               <ExternalLink className="w-3.5 h-3.5" /> Ver app
             </a>
             <div className="w-px h-4 bg-white/10" />
-            <button onClick={() => { setAuthed(false); window.location.hash = '' }}
+            <button onClick={logout}
               className="flex items-center gap-1.5 text-white/35 hover:text-white/60 text-[12px]">
               <LogOut className="w-3.5 h-3.5" /> Salir
             </button>

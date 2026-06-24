@@ -80,11 +80,18 @@ export default function VerseBoard() {
 
   useEffect(() => {
     refresh()
+    // Debounce realtime refetches: many concurrent likes/inserts would otherwise
+    // trigger one full 40-row refetch per event on every connected client (N×M
+    // fanout). Coalesce bursts into a single refetch.
+    let pending: ReturnType<typeof setTimeout> | null = null
     const channel = supabase
       .channel('verse-board')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'verse_submissions' }, () => refresh())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'verse_submissions' }, () => {
+        if (pending) return
+        pending = setTimeout(() => { pending = null; refresh() }, 1500)
+      })
       .subscribe()
-    return () => { supabase.removeChannel(channel) }
+    return () => { if (pending) clearTimeout(pending); supabase.removeChannel(channel) }
   }, [refresh])
 
   // Cooldown: client gate immediately, then confirm against DB.
@@ -251,7 +258,7 @@ export default function VerseBoard() {
                               localStorage.setItem('liked_verses', JSON.stringify([...next]))
                               return next
                             })
-                            await unlikeVerse(s.id)
+                            await unlikeVerse(s.id, deviceId.current)
                           } else {
                             setSubs(prev => prev.map(x => x.id === s.id ? { ...x, likes: (x.likes ?? 0) + 1 } : x))
                             setLikedIds(prev => {
@@ -259,7 +266,7 @@ export default function VerseBoard() {
                               localStorage.setItem('liked_verses', JSON.stringify([...next]))
                               return next
                             })
-                            await likeVerse(s.id)
+                            await likeVerse(s.id, deviceId.current)
                           }
                           setLikingIds(prev => { const next = new Set(prev); next.delete(s.id); return next })
                         }}

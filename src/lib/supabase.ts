@@ -15,10 +15,10 @@ export async function getConfig<T>(key: string): Promise<T | null> {
   return data.value as T
 }
 
+/** Write config via the admin-only `set_config` RPC (server enforces is_admin via JWT). */
 export async function setConfig(key: string, value: unknown): Promise<void> {
-  await supabase
-    .from('app_config')
-    .upsert({ key, value, updated_at: new Date().toISOString() })
+  const { error } = await supabase.rpc('set_config', { p_key: key, p_value: value })
+  if (error) throw new Error(error.message)
 }
 
 /** Upload a file to Supabase Storage `images` bucket. Returns the public URL. */
@@ -90,37 +90,36 @@ export type SubmitResult =
   | { ok: true; row: VerseSubmission }
   | { ok: false; reason: 'RATE_LIMIT' | 'PROFANITY' | 'NAME_FORMAT' | 'ERROR' }
 
-/** Insert via the validated `submit_verse` RPC (server enforces all rules). */
+/**
+ * Submit via the `submit-verse` Edge Function, which runs the two-layer name
+ * moderation (local blocklist → OpenAI Moderation API) and then inserts with the
+ * service role. The Postgres `submit_verse` re-validates everything (rate-limit,
+ * format, length caps, region, blocklist) as defense-in-depth.
+ */
 export async function submitVerse(input: {
   verseReference: string; verseText: string; signerName: string; deviceId: string; region?: string
 }): Promise<SubmitResult> {
-  const { data, error } = await supabase.rpc('submit_verse', {
-    p_reference: input.verseReference,
-    p_text: input.verseText,
-    p_name: input.signerName,
-    p_device: input.deviceId,
-    p_region: input.region ?? null,
+  const { data, error } = await supabase.functions.invoke('submit-verse', {
+    body: {
+      verseReference: input.verseReference,
+      verseText: input.verseText,
+      signerName: input.signerName,
+      deviceId: input.deviceId,
+      region: input.region ?? null,
+    },
   })
-  if (error) {
-    const m = error.message || ''
-    if (m.includes('RATE_LIMIT')) return { ok: false, reason: 'RATE_LIMIT' }
-    if (m.includes('PROFANITY')) return { ok: false, reason: 'PROFANITY' }
-    if (m.includes('NAME_FORMAT')) return { ok: false, reason: 'NAME_FORMAT' }
-    return { ok: false, reason: 'ERROR' }
-  }
-  // rpc returns the inserted row (object, or single-element array depending on PostgREST)
-  const row = (Array.isArray(data) ? data[0] : data) as VerseSubmission
-  return { ok: true, row }
+  if (error || !data) return { ok: false, reason: 'ERROR' }
+  return data as SubmitResult
 }
 
-/** Increment likes on a submission. */
-export async function likeVerse(id: string): Promise<void> {
-  await supabase.rpc('like_verse', { p_id: id })
+/** Increment likes on a submission. One like per (verse, device) — server dedupes. */
+export async function likeVerse(id: string, deviceId: string): Promise<void> {
+  await supabase.rpc('like_verse', { p_id: id, p_device: deviceId })
 }
 
-/** Decrement likes on a submission. */
-export async function unlikeVerse(id: string): Promise<void> {
-  await supabase.rpc('unlike_verse', { p_id: id })
+/** Decrement likes on a submission (removes this device's like). */
+export async function unlikeVerse(id: string, deviceId: string): Promise<void> {
+  await supabase.rpc('unlike_verse', { p_id: id, p_device: deviceId })
 }
 
 /** Admin soft-delete via SECURITY DEFINER RPC (bypasses RLS). */
