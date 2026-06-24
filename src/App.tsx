@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import type { PanInfo } from 'motion/react'
 import { CalendarDays, Users, BookOpen, Mic, Globe } from 'lucide-react'
+import { Analytics } from '@vercel/analytics/react'
 import ActivityPage from './pages/ActivityPage'
 import SeminarioPage from './pages/SeminarioPage'
 import ProgramaPage from './pages/ProgramaPage'
@@ -70,6 +71,7 @@ export default function App() {
 
   return (
     <div className="screen bg-misionero">
+      <Analytics />
       <WorldBackdrop showPlane={tab === 'misiones'} />
 
       <header className="appbar">
