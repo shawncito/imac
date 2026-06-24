@@ -205,53 +205,6 @@ export default function MisionesPage({ onSpeakerTap }: { onSpeakerTap?: (i: numb
         </a>
       </motion.div>
 
-      {/* ── 6. VividFaith ────────────────────────────────────────────────── */}
-      <motion.div className="mis-vivid"
-        initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }} transition={{ duration: 0.5 }}>
-        <div className="mis-vivid-inner">
-          <img src="/vivid-faith.png" alt="VividFaith" className="mis-vivid-logo"
-            onError={e => { (e.target as HTMLImageElement).style.opacity = '0' }} />
-          <div>
-            <h3 className="mis-vivid-title">¿Dejarías tu zona de confort?</h3>
-            <p className="mis-vivid-sub">
-              La plataforma de Vivid Faith vincula a cada misionero con diferentes oportunidades
-              de proyectos misioneros y voluntariados en distintas partes del mundo.
-              Busca las diferentes opciones que existen y deja que Dios cumpla sus planes en ti.
-            </p>
-            <a href="https://vividfaith.com/" target="_blank" rel="noopener noreferrer"
-              className="mis-vivid-link">
-              Ver oportunidades <ExternalLink size={13} />
-            </a>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ── 7. Instagram ─────────────────────────────────────────────────── */}
-      <motion.div className="mis-vivid"
-        initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }} transition={{ duration: 0.5 }}>
-        <div className="mis-vivid-inner">
-          <div style={{ width: 44, height: 44, borderRadius: 14, background: 'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-              <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/>
-            </svg>
-          </div>
-          <div>
-            <h3 className="mis-vivid-title">Síguenos en Instagram</h3>
-            <p className="mis-vivid-sub">
-              Mantente al día con todas las novedades del Servicio Voluntario Adventista UNADECA.
-            </p>
-            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"
-              className="mis-vivid-link">
-              @sva_unadeca <ExternalLink size={13} />
-            </a>
-          </div>
-        </div>
-      </motion.div>
-
       <div className="prog-end" style={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
         <img src="/logo-instituto-misionero.png" alt="Instituto Misionero UNADECA" style={{ height: 44, width: 'auto', opacity: 0.85 }}
           onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
