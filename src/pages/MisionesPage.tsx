@@ -98,7 +98,7 @@ export default function MisionesPage() {
       <div ref={heroRef} className="mis-hero">
         <motion.div className="mis-hero-img-wrap" style={{ scale: imgScale, y: imgY }}>
           <img
-            src="/2026/hero-misiones.jpg"
+            src="/2026/misiones2026.jpeg"
             alt="Misión Amanecer"
             className="mis-hero-img"
             onError={e => { (e.target as HTMLImageElement).src = '/hero.png' }}
