@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import type { PanInfo } from 'motion/react'
 import { CalendarDays, Users, BookOpen, Mic, Home } from 'lucide-react'
@@ -40,6 +40,35 @@ export default function App() {
   const [voicePlaying, setVoicePlaying] = useState(false)
   const [openSeminar, setOpenSeminar] = useState<number | null>(null)
 
+  // ----- Scroll Direction: Hide Header (motion.dev) -----
+  const pagerRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
+  const [hideHeader, setHideHeader] = useState(false)
+  const [headerH, setHeaderH] = useState(0)
+  const lastScrollY = useRef(0)
+
+  useLayoutEffect(() => {
+    if (headerRef.current) setHeaderH(headerRef.current.offsetHeight)
+  }, [])
+
+  useEffect(() => {
+    const el = pagerRef.current
+    if (!el) return
+    const onScroll = (e: Event) => {
+      const t = e.target as HTMLElement
+      if (!(t instanceof HTMLElement) || !t.classList.contains('tab-scroll')) return
+      const y = t.scrollTop
+      if (y > lastScrollY.current && y > 60) setHideHeader(true)
+      else if (y < lastScrollY.current - 4) setHideHeader(false)
+      lastScrollY.current = y
+    }
+    el.addEventListener('scroll', onScroll, true) // captura: scroll no burbujea
+    return () => el.removeEventListener('scroll', onScroll, true)
+  }, [])
+
+  // reset al cambiar de pestaña (nuevo contenedor de scroll desde 0)
+  useEffect(() => { setHideHeader(false); lastScrollY.current = 0 }, [tab])
+
   useEffect(() => {
     const handler = () => setIsAdmin(window.location.hash === '#admin')
     window.addEventListener('hashchange', handler)
@@ -73,16 +102,23 @@ export default function App() {
     <div className="screen bg-misionero">
       <WorldBackdrop showPlane={tab === 'inicio' || tab === 'misiones'} />
 
-      <header className="appbar">
+      <motion.header
+        ref={headerRef}
+        className="appbar"
+        initial={false}
+        animate={{ y: hideHeader ? -headerH : 0 }}
+        transition={{ duration: 0.35, ease: [0.22, 0.61, 0.36, 1] }}
+      >
+        <div className="appbar-scrim" aria-hidden />
         <img src={logoIM} alt="Instituto Misionero" className="brand-logo im" />
         <button className="voz" onClick={handleVoz} aria-label="Escuchar versículo" style={{ marginLeft: 'auto' }}>
           {voicePlaying ? <WaveBars /> : <Mic size={18} />}
           <span className="vlabel">VOZ</span>
         </button>
-      </header>
+      </motion.header>
 
       {/* Pager */}
-      <motion.div className="pager" onPanEnd={handleSwipe}>
+      <motion.div ref={pagerRef} className="pager" onPanEnd={handleSwipe}>
         <AnimatePresence mode="wait">
           <motion.div
             key={tab}

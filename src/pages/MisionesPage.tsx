@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { motion, useScroll, useTransform, useMotionValueEvent } from 'motion/react'
+import { motion, useScroll, useTransform, useMotionValueEvent, useVelocity, useSpring } from 'motion/react'
 import { ChevronRight, ArrowRight } from 'lucide-react'
 import { flightProgress } from '../lib/flightProgress'
 
@@ -73,10 +73,17 @@ export default function MisionesPage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
-  const { scrollYProgress: pageProgress } = useScroll({ container: containerRef })
+  const { scrollYProgress: pageProgress, scrollY: pageScrollY } = useScroll({ container: containerRef })
 
   // Feed page scroll to the global backdrop, which flies the plane along the route.
   useMotionValueEvent(pageProgress, 'change', v => flightProgress.set(v))
+
+  // Scroll-velocity → la caja CTA "se queda atrás" y rebota (sensación de botón
+  // flotante, separado de la página, tocable). En móvil reacciona al swipe.
+  const scrollV  = useVelocity(pageScrollY)
+  const smoothV  = useSpring(scrollV, { stiffness: 280, damping: 16, mass: 0.5 })
+  const ctaY     = useTransform(smoothV, [-1500, 0, 1500], [60, 0, -60], { clamp: true })
+  const ctaScale = useTransform(smoothV, [-1500, 0, 1500], [0.96, 1, 0.96], { clamp: true })
 
   const imgScale   = useTransform(scrollYProgress, [0, 1], [1, 1.22])
   const imgY       = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
@@ -184,24 +191,30 @@ export default function MisionesPage() {
       </div>
 
       {/* ── 5. CTA Misión Amanecer 2027 ─────────────────────────────────── */}
-      <motion.div className="mis-cta"
+      {/* Wrapper externo: animación de entrada (no toca el transform del rebote) */}
+      <motion.div
         initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }} transition={{ duration: 0.6 }}>
-        <span className="page-kicker" style={{ color: ACCENT }}>Próxima edición</span>
-        <h2 className="mis-cta-title">Misión Amanecer 2027</h2>
-        <p className="mis-cta-sub">
-          Si te gusta hacer misión mediante este tipo de actividades y estás interesado
-          en participar en el próximo Misión Amanecer, regístrate en el siguiente link.
-        </p>
-        <a
-          href={REGISTRATION_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mis-btn-primary"
-          style={{ background: ACCENT }}
-        >
-          Inscribirme <ArrowRight size={16} />
-        </a>
+        viewport={{ once: true }} transition={{ duration: 0.6 }}
+        whileTap={{ scale: 0.96 }}>
+        {/* Interno: drag/lag por velocidad de scroll */}
+        <motion.div className="mis-cta"
+          style={{ y: ctaY, scale: ctaScale, willChange: 'transform' }}>
+          <span className="page-kicker" style={{ color: ACCENT }}>Próxima edición</span>
+          <h2 className="mis-cta-title">Misión Amanecer 2027</h2>
+          <p className="mis-cta-sub">
+            Si te gusta hacer misión mediante este tipo de actividades y estás interesado
+            en participar en el próximo Misión Amanecer, regístrate en el siguiente link.
+          </p>
+          <a
+            href={REGISTRATION_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mis-btn-primary"
+            style={{ background: ACCENT }}
+          >
+            Inscribirme <ArrowRight size={16} />
+          </a>
+        </motion.div>
       </motion.div>
       
       

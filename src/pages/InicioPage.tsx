@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'motion/react'
+import { motion, useMotionValue, useTransform } from 'motion/react'
 import type { ReactNode } from 'react'
 import { flightProgress } from '../lib/flightProgress'
 import { useSpeech } from '../hooks/useSpeech'
@@ -48,6 +48,10 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { isPlaying } = useSpeech()
 
+  // ----- Scroll Zoom Hero (motion.dev) -----
+  const heroProgress = useMotionValue(0)
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.3])
+
   // Feed page scroll → global plane backdrop. Plain listener en vez de
   // useScroll: en cold-load la versión acelerada de Motion cacheaba mal el
   // contenedor y el progreso no se actualizaba hasta remontar (avión congelado
@@ -58,6 +62,9 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
     const onScroll = () => {
       const max = el.scrollHeight - el.clientHeight
       flightProgress.set(max > 0 ? el.scrollTop / max : 0)
+      // zoom del hero: progreso dentro de su propia altura
+      const heroH = el.clientWidth * 305 / 576
+      heroProgress.set(heroH > 0 ? Math.min(1, el.scrollTop / heroH) : 0)
     }
     onScroll()
     el.addEventListener('scroll', onScroll, { passive: true })
@@ -83,54 +90,55 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
   return (
     <div ref={containerRef} className="tab-scroll" style={{ paddingLeft: 0, paddingRight: 0, paddingTop: 0 }}>
 
-      {/* Hero + countdown — imagen pendiente */}
-      <div style={{ position: 'relative', width: '100%', height: 296 }}>
-        {/* placeholder: imagen/logo irá aquí */}
+      {/* Hero artwork — recortado justo bajo la línea dorada para no dejar banda vacía */}
+      <div style={{ position: 'relative', width: '100%', aspectRatio: '576 / 430', background: '#080e22', overflow: 'hidden' }}>
+        <motion.img src="/2026/hero-misiones5.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block', scale: heroScale, transformOrigin: 'center 35%' }} />
+        {/* fade en el borde superior (hacia el header) y en el inferior (hacia el contador) */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(to bottom, transparent 82%, #1a335b 100%)' }} />
+      </div>
 
-        {/* Título del evento — anclado arriba */}
-        <motion.h1
-          style={{
-            position: 'absolute', top: 18, left: 0, right: 0, textAlign: 'center',
-            fontFamily: 'var(--serif)', fontSize: 32, fontWeight: 500, lineHeight: 1.05,
-            color: '#F4F1EB', margin: 0, padding: '0 24px', textShadow: '0 1px 12px rgba(0,0,0,0.55)',
-          }}
-          initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, ease: EASE }}
+      {/* "El viaje" + contador — justo debajo de la línea dorada */}
+      <div style={{
+        background: 'linear-gradient(to bottom, #1a335b 0%, #1a335b 12%, rgba(8,14,34,0) 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center',
+        textAlign: 'center', padding: remaining === 0 ? '4px 24px 10px' : '6px 24px 14px',
+      }}>
+        <motion.div
+          style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: ACCENT }}
+          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: EASE }}
         >
-          Festival de Misiones 2026
-        </motion.h1>
-
-        <div style={{
-          position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center',
-          padding: '0 24px 4px',
-          background: 'linear-gradient(to bottom, transparent 40%, rgba(8,14,34,0.85) 85%, #080e22 100%)',
-        }}>
+          El viaje hacia la misión
+        </motion.div>
+        {remaining === 0 ? (
           <motion.div
-            style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: ACCENT }}
-            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+            key="started"
+            style={{ fontFamily: 'var(--serif)', fontSize: 42, fontWeight: 500, color: '#F4F1EB' }}
+            initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: EASE }}
           >
-            El viaje hacia la misión
+            ¡Ya comenzó!
           </motion.div>
-          <motion.div
-            style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}
-            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
-          >
-            <span style={{ fontFamily: 'var(--serif)', fontSize: 76, fontWeight: 400, lineHeight: 0.95, fontVariantNumeric: 'tabular-nums' }}>
-              {d}
-            </span>
-            <span style={{ fontFamily: 'var(--serif)', fontSize: 30, fontWeight: 400, color: '#8d8c93' }}>días</span>
-          </motion.div>
-          <motion.div
-            style={{ fontSize: 12, color: '#8d8c93', fontVariantNumeric: 'tabular-nums', letterSpacing: 0.5, marginTop: 2 }}
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.25 }}
-          >
-            {h} h · {m} m · {s} s — para la inauguración
-          </motion.div>
-        </div>
+        ) : (
+          <>
+            <motion.div
+              style={{ display: 'flex', alignItems: 'baseline', gap: 8, paddingTop: 4, paddingBottom: 2 }}
+              initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
+            >
+              <span style={{ fontFamily: 'var(--serif)', fontSize: 76, fontWeight: 400, lineHeight: 0.95, fontVariantNumeric: 'tabular-nums' }}>
+                {d}
+              </span>
+              <span style={{ fontFamily: 'var(--serif)', fontSize: 30, fontWeight: 400, color: '#8d8c93' }}>días</span>
+            </motion.div>
+            <motion.div
+              style={{ fontSize: 12, color: '#8d8c93', fontVariantNumeric: 'tabular-nums', letterSpacing: 0.5 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              transition={{ duration: 0.7, delay: 0.25 }}
+            >
+              {h} h · {m} m · {s} s — para la inauguración
+            </motion.div>
+          </>
+        )}
       </div>
 
       <div style={{ padding: '14px 20px 28px' }}>

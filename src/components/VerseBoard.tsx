@@ -311,8 +311,13 @@ export default function VerseBoard() {
           Podrás compartir de nuevo en {formatCooldown(cooldown)}
         </div>
       ) : !open ? (
-        <button
-          onClick={() => { setOpen(true); setError('') }}
+        <motion.button
+          onClick={() => { setError(''); setTimeout(() => setOpen(true), 130) }}
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ scale: 1.03, backgroundColor: `color-mix(in srgb, ${ACCENT} 22%, transparent)` }}
+          whileTap={{ scale: 0.94 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
           style={{
             width: '100%', padding: '13px 16px', borderRadius: 14, cursor: 'pointer',
             background: `color-mix(in srgb, ${ACCENT} 14%, transparent)`,
@@ -322,7 +327,7 @@ export default function VerseBoard() {
           }}
         >
            Compartir mi versículo
-        </button>
+        </motion.button>
       ) : (
         <div style={{
           background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)',
