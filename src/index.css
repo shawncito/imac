@@ -658,8 +658,8 @@ body {
   display: none;
   position: fixed; inset: 0; z-index: 9999;
   background: rgba(8, 14, 34, 0.82);
-  backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(48px) saturate(1.6) brightness(0.55);
+  -webkit-backdrop-filter: blur(48px) saturate(1.6) brightness(0.55);
   align-items: center; justify-content: center;
 }
 @media (min-width: 768px) {
