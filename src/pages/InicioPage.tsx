@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useTransform } from 'motion/react'
 import type { ReactNode } from 'react'
 import { flightProgress } from '../lib/flightProgress'
-import { useSpeech } from '../hooks/useSpeech'
 import VerseBoard from '../components/VerseBoard'
 import logoHand from '../assets/logo-hand.png'
 import vividFaithLogo from '../assets/vividfaith-logo.svg'
@@ -40,13 +39,11 @@ function Reveal({
 
 type Props = {
   onGoToMisiones: () => void
-  onSpeakChange?: (playing: boolean) => void
 }
 
-export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
+export default function InicioPage({ onGoToMisiones }: Props) {
   const [remaining, setRemaining] = useState(() => Math.max(0, TARGET.getTime() - Date.now()))
   const containerRef = useRef<HTMLDivElement>(null)
-  const { isPlaying } = useSpeech()
 
   // ----- Scroll Zoom Hero (motion.dev) -----
   const heroProgress = useMotionValue(0)
@@ -70,10 +67,6 @@ export default function InicioPage({ onGoToMisiones, onSpeakChange }: Props) {
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => el.removeEventListener('scroll', onScroll)
   }, [])
-
-  useEffect(() => {
-    if (onSpeakChange) onSpeakChange(isPlaying)
-  }, [isPlaying, onSpeakChange])
 
   useEffect(() => {
     function tick() { setRemaining(Math.max(0, TARGET.getTime() - Date.now())) }
