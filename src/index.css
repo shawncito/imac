@@ -657,9 +657,9 @@ body {
 .desktop-gate {
   display: none;
   position: fixed; inset: 0; z-index: 9999;
-  background: rgba(8, 14, 34, 0.82);
-  backdrop-filter: blur(48px) saturate(1.6) brightness(0.55);
-  -webkit-backdrop-filter: blur(48px) saturate(1.6) brightness(0.55);
+  background: rgba(8, 14, 34, 0.88);
+  backdrop-filter: blur(56px) saturate(1.8) brightness(0.45);
+  -webkit-backdrop-filter: blur(56px) saturate(1.8) brightness(0.45);
   align-items: center; justify-content: center;
 }
 @media (min-width: 768px) {
