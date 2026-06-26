@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Play, Pause, ChevronDown, Mic, Check, Plus } from 'lucide-react'
+import { Play, Pause, ChevronDown, Mic, Check, Plus, RotateCcw } from 'lucide-react'
 import { languages } from '../data/verses'
-import { useSpeech } from '../hooks/useSpeech'
+import type { Player } from '../hooks/usePlayer'
 
 const ACCENT = '#FF5A1F'
 
@@ -12,41 +12,27 @@ const BADGE: Record<string, string> = {
   ja: 'あ', ru: 'RU', it: 'IT', el: 'Ελ', he: 'עב',
 }
 
-type Props = {
-  playSignal: number
-  onPlayingChange: (playing: boolean) => void
+type Props = { player: Player }
+
+function fmtTime(s: number) {
+  if (!isFinite(s) || s < 0) s = 0
+  const m = Math.floor(s / 60)
+  const ss = String(Math.floor(s % 60)).padStart(2, '0')
+  return `${m}:${ss}`
 }
 
-function randIdx(n: number, exclude: number) {
-  if (n <= 1) return 0
-  let i = exclude
-  while (i === exclude) i = Math.floor(Math.random() * n)
-  return i
-}
-
-export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
-  const [selectedLang, setSelectedLang] = useState(0)
-  const [verseIndex, setVerseIndex]     = useState(0)
-  const [showLang, setShowLang]         = useState(false)
-  const [showVoice, setShowVoice]       = useState(false)
+export default function ActivityPage({ player }: Props) {
+  const [showLang, setShowLang]   = useState(false)
+  const [showVoice, setShowVoice] = useState(false)
 
   const {
-    isPlaying, isPaused, charIndex, speak, pause, resume, stop,
-    selectedVoice, setSelectedVoice, getVoicesForLang,
-  } = useSpeech()
+    isPlaying, isPaused, charIndex, currentTime, duration,
+    togglePlay, restart, seek,
+    selectedLang, lang, verse, verseIndex,
+    audioVoices, currentAudioVoice, pickLang, pickVoice,
+  } = player
 
-  const lang   = languages[selectedLang]
-  const verse  = lang.verses[verseIndex]
-  const voices = getVoicesForLang(lang.ttsLang)
-  const rtl    = lang.code === 'ar' || lang.code === 'he'
-
-  useEffect(() => { onPlayingChange(isPlaying && !isPaused) }, [isPlaying, isPaused, onPlayingChange])
-
-  useEffect(() => {
-    if (playSignal === 0) return
-    if (!isPlaying) speak(verse.text, lang.ttsLang, `${verse.reference}. `)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playSignal])
+  const rtl = lang.code === 'ar' || lang.code === 'he'
 
   const tokens = useMemo(() => {
     const out: { text: string; start: number; space: boolean }[] = []
@@ -59,21 +45,34 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
   }, [verse.text])
 
   const big = verse.text.length > 150
-  const progress = isPlaying && charIndex >= 0 ? Math.min(1, charIndex / verse.text.length) : 0
+  const progress = duration > 0 ? Math.min(1, currentTime / duration) : 0
 
-  function pickLang(idx: number) {
-    if (isPlaying) stop()
-    setSelectedLang(idx)
-    setVerseIndex(randIdx(languages[idx].verses.length, -1))
-    setSelectedVoice(null)
-    setShowLang(false)
+  // ── seek bar drag ──
+  const trackRef    = useRef<HTMLDivElement>(null)
+  const draggingRef = useRef(false)
+
+  function seekAt(clientX: number) {
+    const el = trackRef.current
+    if (!el || duration <= 0) return
+    const r = el.getBoundingClientRect()
+    const frac = Math.min(1, Math.max(0, (clientX - r.left) / r.width))
+    seek(frac * duration)
+  }
+  function onTrackDown(e: React.PointerEvent) {
+    if (duration <= 0) return
+    draggingRef.current = true
+    seekAt(e.clientX)
+    const move = (ev: PointerEvent) => { if (draggingRef.current) seekAt(ev.clientX) }
+    const up   = () => {
+      draggingRef.current = false
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
   }
 
-  function togglePlay() {
-    if (isPaused) { resume(); return }
-    if (isPlaying) { pause(); return }
-    speak(verse.text, lang.ttsLang, `${verse.reference}. `)
-  }
+  function selectLang(idx: number) { pickLang(idx); setShowLang(false) }
 
   return (
     <div className="tab-actividad">
@@ -99,7 +98,7 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
                 {languages.map((l, idx) => {
                   const active = idx === selectedLang
                   return (
-                    <button key={l.code} className={'lang-item' + (active ? ' active' : '')} onClick={() => pickLang(idx)}>
+                    <button key={l.code} className={'lang-item' + (active ? ' active' : '')} onClick={() => selectLang(idx)}>
                       <span className="lang-badge sm" style={{ color: active ? ACCENT : undefined }}>{BADGE[l.code] ?? l.code.toUpperCase()}</span>
                       <span style={{ fontWeight: active ? 600 : 450 }}>{l.nativeName}</span>
                       <span className="lang-count">{l.verses.length}</span>
@@ -141,26 +140,38 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
                 })}
               </p>
             </div>
+
+            {/* ── Player controls ── */}
             <div className="verse-foot">
               <button className="play-btn" onClick={togglePlay} style={{ background: ACCENT }} aria-label={isPlaying && !isPaused ? 'Pausar' : 'Reproducir'}>
                 {isPlaying && !isPaused
                   ? <Pause size={22} fill="#0a0a0b" stroke="none" />
                   : <Play size={22} fill="#0a0a0b" stroke="none" style={{ marginLeft: 2 }} />}
               </button>
-              <div className="play-track">
-                <div className="play-track-bar" style={{ width: `${progress * 100}%`, background: ACCENT }} />
+
+              <button className="ctrl-btn" onClick={restart} disabled={duration <= 0} aria-label="Reiniciar">
+                <RotateCcw size={17} />
+              </button>
+
+              <div className="play-seek">
+                <span className="ptime">{fmtTime(currentTime)}</span>
+                <div className="play-track" ref={trackRef} onPointerDown={onTrackDown}>
+                  <div className="play-track-bar" style={{ width: `${progress * 100}%`, background: ACCENT }} />
+                  <div className="play-thumb" style={{ left: `${progress * 100}%`, background: ACCENT, opacity: duration > 0 ? 1 : 0 }} />
+                </div>
+                <span className="ptime">{fmtTime(duration)}</span>
               </div>
             </div>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* ── Voice picker — below card, outside overflow:hidden context ── */}
+      {/* ── Voice picker (select) ── */}
       <div className="voice-row">
         <div style={{ position: 'relative' }}>
           <button className="voice-chip" onClick={() => { setShowVoice(o => !o); setShowLang(false) }}>
             <Mic size={14} />
-            <span>{selectedVoice ? selectedVoice.name : 'Voz automática'}</span>
+            <span>{currentAudioVoice?.name ?? 'Voz'}</span>
             <ChevronDown size={13} style={{ opacity: 0.5 }} />
           </button>
           <AnimatePresence>
@@ -175,16 +186,14 @@ export default function ActivityPage({ playSignal, onPlayingChange }: Props) {
                   exit={{ opacity: 0, y: 8 }}
                   transition={{ duration: 0.18 }}
                 >
-                  <div className="voice-sheet-title">Voz · {lang.code.toUpperCase()} · {voices.length}</div>
-                  <button className={'voice-opt' + (selectedVoice === null ? ' active' : '')} onClick={() => { setSelectedVoice(null); setShowVoice(false) }}>
-                    <Mic size={15} /><span>Automática</span>
-                    {selectedVoice === null && <span style={{ marginLeft: 'auto', color: ACCENT, display: 'flex' }}><Check size={15} /></span>}
-                  </button>
-                  {voices.map(v => {
-                    const active = selectedVoice?.name === v.name
+                  <div className="voice-sheet-title">Voz · {lang.nativeName}</div>
+                  {audioVoices.map(v => {
+                    const active = currentAudioVoice?.id === v.id
                     return (
-                      <button key={v.name} className={'voice-opt' + (active ? ' active' : '')} onClick={() => { setSelectedVoice(v); setShowVoice(false) }}>
-                        <Mic size={15} /><span>{v.name}</span>
+                      <button key={v.id} className={'voice-opt' + (active ? ' active' : '')} onClick={() => { pickVoice(v.id); setShowVoice(false) }}>
+                        <Mic size={15} />
+                        <span>{v.name}</span>
+                        <span style={{ marginLeft: 8, opacity: 0.5, fontSize: 12 }}>{v.gender === 'f' ? 'Mujer' : 'Hombre'}</span>
                         {active && <span style={{ marginLeft: 'auto', color: ACCENT, display: 'flex' }}><Check size={15} /></span>}
                       </button>
                     )
