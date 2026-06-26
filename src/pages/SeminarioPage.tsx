@@ -29,7 +29,7 @@ export default function SeminarioPage({
       <header className="page-head">
         <div className="page-kicker" style={{ color: ACCENT }}>Sábado 27 · 2:00–4:30 pm</div>
         <h1 className="page-title">Seminarios</h1>
-        <p className="page-sub">Tres expositores simultáneos en el Salón de Actos. Pasaporte 2 en Israel Leito.</p>
+        <p className="page-sub">Tres expositores simultáneos en el Salón de Actos. Pasaporte 2 en el Salón Multimedia.</p>
       </header>
 
       {seminars.length === 0 && (

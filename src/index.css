@@ -122,7 +122,8 @@ body {
 }
 .lang-badge { font-size: 13px; font-weight: 700; letter-spacing: 0.5px; min-width: 26px; text-align: center; color: var(--muted); }
 .lang-badge.sm { min-width: 22px; font-size: 12.5px; }
-.lang-name { font-size: 15.5px; font-weight: 600; }
+.lang-name { display: flex; flex-direction: column; gap: 2px; font-size: 15.5px; font-weight: 600; line-height: 1.1; }
+.lang-subname { font-size: 0.85em; font-weight: 400; color: rgba(255,255,255,0.65); }
 .lang-chev { margin-left: auto; display: flex; opacity: 0.5; transition: transform 0.25s ease; }
 .lang-chev.up { transform: rotate(180deg); }
 .lang-scrim { position: fixed; inset: 0; z-index: 45; }
