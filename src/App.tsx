@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import type { PanInfo } from 'motion/react'
-import { CalendarDays, Users, BookOpen, Mic, Home } from 'lucide-react'
+import { CalendarDays, Users, BookOpen, Mic, Home, Play } from 'lucide-react'
+import { usePlayer } from './hooks/usePlayer'
 import ActivityPage from './pages/ActivityPage'
 import SeminarioPage from './pages/SeminarioPage'
 import ProgramaPage from './pages/ProgramaPage'
@@ -36,9 +37,11 @@ export default function App() {
   const [tab, setTab]           = useState<Tab>('inicio')
   const [prev, setPrev]         = useState<Tab>('inicio')
   const [isAdmin, setIsAdmin]   = useState(window.location.hash === '#admin')
-  const [playSignal, setPlaySignal] = useState(0)
-  const [voicePlaying, setVoicePlaying] = useState(false)
   const [openSeminar, setOpenSeminar] = useState<number | null>(null)
+
+  // Global media player — persists across page navigation
+  const player = usePlayer()
+  const voicePlaying = player.isPlaying && !player.isPaused
 
   // ----- Scroll Direction: Hide Header (motion.dev) -----
   const pagerRef = useRef<HTMLDivElement>(null)
@@ -82,8 +85,11 @@ export default function App() {
   }
 
   function handleVoz() {
+    // Active track → toggle pause/resume in place (don't navigate).
+    if (player.isActive) { player.togglePlay(); return }
+    // Idle → go to Actividad and start playing.
     go('actividad')
-    setPlaySignal(s => s + 1)
+    player.play()
   }
 
   function handleSwipe(_: unknown, info: PanInfo) {
@@ -106,13 +112,22 @@ export default function App() {
         ref={headerRef}
         className="appbar"
         initial={false}
-        animate={{ y: hideHeader ? -headerH : 0 }}
+        animate={{ y: (hideHeader && !player.isActive) ? -headerH : 0 }}
         transition={{ duration: 0.35, ease: [0.22, 0.61, 0.36, 1] }}
       >
         <div className="appbar-scrim" aria-hidden />
         <img src={logoIM} alt="Instituto Misionero" className="brand-logo im" />
-        <button className="voz" onClick={handleVoz} aria-label="Escuchar versículo" style={{ marginLeft: 'auto' }}>
-          {voicePlaying ? <WaveBars /> : <Mic size={18} />}
+        <button
+          className={'voz' + (player.isActive ? ' active' : '')}
+          onClick={handleVoz}
+          aria-label={voicePlaying ? 'Pausar' : player.isPaused ? 'Reanudar' : 'Escuchar versículo'}
+          style={{ marginLeft: 'auto' }}
+        >
+          {voicePlaying
+            ? <WaveBars />
+            : player.isPaused
+              ? <Play size={17} fill="currentColor" stroke="none" style={{ marginLeft: 1 }} />
+              : <Mic size={18} />}
           <span className="vlabel">VOZ</span>
         </button>
       </motion.header>
@@ -129,11 +144,7 @@ export default function App() {
             transition={{ duration: 0.24, ease: [0.22, 0.61, 0.36, 1] }}
           >
             {tab === 'inicio'    && (
-              <InicioPage
-                onGoToMisiones={() => go('misiones')}
-
-                onSpeakChange={setVoicePlaying}
-              />
+              <InicioPage onGoToMisiones={() => go('misiones')} />
             )}
             {tab === 'misiones'  && (
               <MisionesPage />
@@ -143,7 +154,7 @@ export default function App() {
               <SeminarioPage initialOpen={openSeminar} onOpened={() => setOpenSeminar(null)} />
             )}
             {tab === 'actividad' && (
-              <ActivityPage playSignal={playSignal} onPlayingChange={setVoicePlaying} />
+              <ActivityPage player={player} />
             )}
           </motion.div>
         </AnimatePresence>
