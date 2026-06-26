@@ -10,6 +10,7 @@ import MisionesPage from './pages/MisionesPage'
 import InicioPage from './pages/InicioPage'
 import AdminPage from './pages/AdminPage'
 import WorldBackdrop from './components/WorldBackdrop'
+import DesktopGate from './components/DesktopGate'
 import logoIM from './assets/logo.webp'
 
 type Tab = 'inicio' | 'misiones' | 'programa' | 'seminario' | 'actividad'
@@ -106,6 +107,7 @@ export default function App() {
 
   return (
     <div className="screen bg-misionero">
+      <DesktopGate />
       <WorldBackdrop showPlane={tab === 'inicio' || tab === 'misiones'} />
 
       <motion.header
