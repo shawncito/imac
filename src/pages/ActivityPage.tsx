@@ -12,6 +12,13 @@ const BADGE: Record<string, string> = {
   ja: 'あ', ru: 'RU', it: 'IT', el: 'Ελ', he: 'עב',
 }
 
+const SPANISH_NAME: Record<string, string> = {
+  es: 'Español', pt: 'Portugués', en: 'Inglés', hi: 'Hindi',
+  fr: 'Francés', de: 'Alemán', sw: 'Suajili', tr: 'Turco',
+  pl: 'Polaco', ar: 'Árabe', zh: 'Chino', ko: 'Coreano',
+  ja: 'Japonés', ru: 'Ruso', it: 'Italiano', el: 'Griego', he: 'Hebreo',
+}
+
 type Props = { player: Player }
 
 function fmtTime(s: number) {
@@ -81,7 +88,10 @@ export default function ActivityPage({ player }: Props) {
       <div style={{ position: 'relative', zIndex: 40, flexShrink: 0 }}>
         <button className="lang-trigger" onClick={() => { setShowLang(o => !o); setShowVoice(false) }}>
           <span className="lang-badge" style={{ color: ACCENT }}>{BADGE[lang.code] ?? lang.code.toUpperCase()}</span>
-          <span className="lang-name">{lang.nativeName}</span>
+          <span className="lang-name">
+            <span>{lang.nativeName || lang.name}</span>
+            <span className="lang-subname">{SPANISH_NAME[lang.code] ?? lang.name}</span>
+          </span>
           <span className={'lang-chev' + (showLang ? ' up' : '')}><ChevronDown size={18} /></span>
         </button>
         <AnimatePresence>
@@ -100,8 +110,10 @@ export default function ActivityPage({ player }: Props) {
                   return (
                     <button key={l.code} className={'lang-item' + (active ? ' active' : '')} onClick={() => selectLang(idx)}>
                       <span className="lang-badge sm" style={{ color: active ? ACCENT : undefined }}>{BADGE[l.code] ?? l.code.toUpperCase()}</span>
-                      <span style={{ fontWeight: active ? 600 : 450 }}>{l.nativeName}</span>
-                      <span className="lang-count">{l.verses.length}</span>
+                      <span className="lang-name">
+                        <span style={{ fontWeight: active ? 600 : 450 }}>{l.nativeName || l.name}</span>
+                        <span className="lang-subname">{SPANISH_NAME[l.code] ?? l.name}</span>
+                      </span>
                       {active && <span style={{ color: ACCENT, display: 'flex' }}><Check size={16} /></span>}
                     </button>
                   )
